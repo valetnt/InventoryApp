@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">InventoryApp</string>
+    <string name="empty_view_title_text">Empty Inventory.</string>
+    <string name="empty_view_subtitle_text">Start adding items.</string>
+</resources>
