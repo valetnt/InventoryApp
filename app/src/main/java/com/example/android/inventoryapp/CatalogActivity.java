@@ -1,6 +1,7 @@
 package com.example.android.inventoryapp;
 
 import android.support.v7.app.AppCompatActivity;
+import android.support.design.widget.FloatingActionButton;
 import android.os.Bundle;
 
 public class CatalogActivity extends AppCompatActivity {

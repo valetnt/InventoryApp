@@ -1,5 +1,12 @@
 <resources>
     <string name="app_name">InventoryApp</string>
     <string name="empty_view_title_text">Empty Inventory.</string>
-    <string name="empty_view_subtitle_text">Start adding items.</string>
+    <string name="empty_view_subtitle_text">Click the button below to start adding items.</string>
+    <string name="item_name">Name Of The Item</string>
+    <string name="item_description">Synthetic description of the item, made of keywords</string>
+    <string name="label_selling_price">selling price:</string>
+    <string name="item_price">15.99</string>
+    <string name="label_currency">$</string>
+    <string name="label_in_stock">in stock:</string>
+    <string name="item_quantity_in_stock">21</string>
 </resources>

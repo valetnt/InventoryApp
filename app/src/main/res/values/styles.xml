@@ -11,18 +11,18 @@
     <!-- Catalog Items -->
     <style name="ListItemName" parent="AppTheme">
         <item name="android:textColor">@android:color/primary_text_light</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/item_name_text_size</item>
     </style>
 
     <style name="ListItemDescription" parent="AppTheme">
-        <item name="android:textColor">@android:color/secondary_text_light</item>
+        <item name="android:textColor">@android:color/tertiary_text_light</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/item_description_text_size</item>
     </style>
 
     <style name="ListItemPrice" parent="AppTheme">
-        <item name="android:textColor">@android:color/tertiary_text_light</item>
+        <item name="android:textColor">@android:color/secondary_text_light</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/item_price_text_size</item>
     </style>
@@ -36,6 +36,7 @@
     <style name="LabelInStock" parent="AppTheme">
         <item name="android:textColor">@android:color/darker_gray</item>
         <item name="android:textStyle">normal</item>
+        <item name="android:textAllCaps">true</item>
         <item name="android:textSize">@dimen/item_label_in_stock_text_size</item>
     </style>
 

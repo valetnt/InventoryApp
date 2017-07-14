@@ -7,18 +7,25 @@
     <dimen name="activity_margin">16dp</dimen>
 
     <!-- Text Size of Item name -->
-    <dimen name="item_name_text_size">18sp</dimen>
+    <dimen name="item_name_text_size">20sp</dimen>
 
     <!-- Text Size of Item description -->
-    <dimen name="item_description_text_size">16sp</dimen>
+    <dimen name="item_description_text_size">18sp</dimen>
 
     <!-- Text Size of Item price -->
-    <dimen name="item_price_text_size">14sp</dimen>
+    <dimen name="item_price_text_size">16sp</dimen>
 
     <!-- Text Size of Item quantity -->
-    <dimen name="item_quantity_text_size">14sp</dimen>
+    <dimen name="item_quantity_text_size">16sp</dimen>
 
     <!-- Text Size of Label for quantity in stock -->
     <dimen name="item_label_in_stock_text_size">12sp</dimen>
+
+    <!-- Button Size -->
+    <dimen name="button_size">24dp</dimen>
+    <dimen name="touch_target_size">48dp</dimen>
+
+    <!-- Smaller margin within the List Item Layout -->
+    <dimen name="item_smaller_margin">4dp</dimen>
 
 </resources>
