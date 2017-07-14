@@ -12,7 +12,7 @@
     <style name="ListItemName" parent="AppTheme">
         <item name="android:textColor">@android:color/primary_text_light</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:textAppearance">?android:textAppearanceLarge</item>
+        <item name="android:textAppearance">?android:textAppearanceMedium</item>
     </style>
 
     <style name="ListItemDescription" parent="AppTheme">

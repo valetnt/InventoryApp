@@ -35,5 +35,19 @@
     <!-- Label for overview of attributes in the editor [CHAR LIMIT=30] -->
     <string name="label_overview">Overview:</string>
 
+    <!-- Label for supplier info -->
+    <string name="label_supplier">Supplier Info:</string>
+
+    <!-- Text hint for supplier name [CHAR LIMIT=30] -->
+    <string name="hint_item_supplier_name">Supplier</string>
+
+    <!-- Text hint for supplier email address [CHAR LIMIT=30] -->
+    <string name="hint_item_supplier_email">Supplier E-Mail</string>
+
+    <!-- Label for number of orders in progress [CHAR LIMIT=30] -->
+    <string name="label_orders_in_progress">Orders in Progress:</string>
+
+    <!-- Label for button that issues a new order [CHAR LIMIT=30] -->
+    <string name="label_order_button">order</string>
 
 </resources>

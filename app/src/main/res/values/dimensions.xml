@@ -6,6 +6,9 @@
     <!-- Common margin value used throughout the app -->
     <dimen name="activity_margin">16dp</dimen>
 
+    <!-- Image Size -->
+    <dimen name="image_size">88dp</dimen>
+
     <!-- Button Size -->
     <dimen name="button_size">24dp</dimen>
     <dimen name="touch_target_size">48dp</dimen>
@@ -18,5 +21,8 @@
 
     <!-- Smaller margin within the Editor Layout -->
     <dimen name="editor_smaller_margin">4dp</dimen>
+
+    <!-- Order Button corner radius -->
+    <dimen name="button_corner_radius">4dp</dimen>
 
 </resources>

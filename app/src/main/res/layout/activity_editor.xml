@@ -12,16 +12,34 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:baselineAligned="false"
         android:orientation="horizontal">
 
-        <!-- Label -->
-        <TextView
-            style="@style/CategoryStyle"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:paddingTop="@dimen/activity_margin"
-            android:text="@string/label_overview" />
+            android:orientation="vertical"
+            android:paddingTop="@dimen/activity_margin">
+
+            <!-- Label -->
+            <TextView
+                style="@style/CategoryStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/label_overview" />
+
+            <!-- Picture -->
+            <ImageView
+                android:layout_width="@dimen/image_size"
+                android:layout_height="@dimen/image_size"
+                android:layout_gravity="center_vertical"
+                android:layout_marginBottom="@dimen/activity_margin"
+                android:layout_marginTop="@dimen/activity_margin"
+                android:scaleType="centerInside"
+                android:src="@drawable/no_image_available" />
+
+        </LinearLayout>
 
         <!-- Input fields -->
         <LinearLayout
@@ -63,6 +81,7 @@
 
     </LinearLayout>
 
+    <!-- In Stock category -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -73,22 +92,141 @@
             style="@style/CategoryStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingTop="@dimen/activity_margin"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="2"
             android:text="@string/label_quantity_in_stock" />
 
         <!-- Quantity field -->
-        <EditText
+        <TextView
             android:id="@+id/edit_item_quantity_in_stock"
             style="@style/EditorFieldStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="@dimen/editor_smaller_margin"
+            android:layout_marginStart="@dimen/editor_smaller_margin"
+            android:layout_weight="2" />
+
+        <!-- Buttons for modifying quantity -->
+        <FrameLayout
+            android:id="@+id/button_increase_quantity"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/touch_target_size"
+            android:layout_weight="1">
+
+            <ImageView
+                android:layout_width="@dimen/button_size"
+                android:layout_height="@dimen/button_size"
+                android:layout_gravity="center"
+                android:background="@color/colorIncreaseQuantity"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_increase" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/button_decrease_quantity"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/touch_target_size"
+            android:layout_weight="1">
+
+            <ImageView
+                android:layout_width="@dimen/button_size"
+                android:layout_height="@dimen/button_size"
+                android:layout_gravity="center"
+                android:background="@color/colorDecreaseQuantity"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_decrease" />
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+    <!-- Supplier category -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        android:orientation="horizontal">
+
+        <!-- Label -->
+        <TextView
+            style="@style/CategoryStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingTop="@dimen/activity_margin"
+            android:text="@string/label_supplier" />
+
+        <!-- Input fields -->
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/editor_smaller_margin"
             android:layout_marginStart="@dimen/editor_smaller_margin"
             android:layout_weight="2"
-            android:hint="@string/hint_item_quantity_in_stock"
-            android:inputType="number" />
+            android:orientation="vertical">
+
+            <!-- Supplier Name field -->
+            <EditText
+                android:id="@+id/edit_item_supplier_name"
+                style="@style/EditorFieldStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_item_supplier_name"
+                android:inputType="textCapWords" />
+
+            <!-- Supplier Email field -->
+            <EditText
+                android:id="@+id/edit_item_supplier_email"
+                style="@style/EditorFieldStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_item_supplier_email"
+                android:inputType="textEmailAddress" />
+
+        </LinearLayout>
 
     </LinearLayout>
+
+    <!-- Orders in Progress category -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_margin"
+        android:baselineAligned="false"
+        android:orientation="horizontal">
+
+        <!-- Label -->
+        <TextView
+            style="@style/CategoryStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:text="@string/label_orders_in_progress" />
+
+        <!-- Text field -->
+        <TextView
+            android:id="@+id/item_orders_in_progress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="@dimen/editor_smaller_margin"
+            android:layout_marginStart="@dimen/editor_smaller_margin"
+            android:layout_weight="2"
+            android:orientation="vertical" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/button_order"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="@dimen/activity_margin"
+        android:background="@drawable/order_button_background"
+        android:text="@string/label_order_button"
+        android:textColor="@android:color/white" />
 
 </LinearLayout>

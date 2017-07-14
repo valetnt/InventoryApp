@@ -5,4 +5,6 @@
     <color name="colorAccent">#FF3D00</color>
     <color name="colorPrimaryEditor">#37474F</color>
     <color name="colorAccentEditor">#0288D1</color>
+    <color name="colorIncreaseQuantity">#C5E1A5</color>
+    <color name="colorDecreaseQuantity">#EF9A9A</color>
 </resources>
