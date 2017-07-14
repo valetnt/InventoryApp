@@ -134,6 +134,8 @@ public class InventoryProvider extends ContentProvider {
      */
     private Uri insertItem(Uri uri, ContentValues values) {
 
+        // TODO: DATA VALIDATION
+
         // Get writable database
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
         //Insert new entry into our database
@@ -168,7 +170,7 @@ public class InventoryProvider extends ContentProvider {
             case INVENTORY_ID:
                 // Update only the row associated to the specific id appended to the content URI
                 selection = InventoryEntry._ID + " =? ";
-                selectionArgs = new String[] {String.valueOf(ContentUris.parseId(uri))};
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 return updateItem(uri, values, selection, selectionArgs);
 
             default:
@@ -183,6 +185,8 @@ public class InventoryProvider extends ContentProvider {
      */
     private int updateItem(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 
+        // TODO: DATA VALIDATION
+
         int rowsUpdated = 0;
 
         // If there are no values to update, then don't try to update the database
@@ -194,7 +198,7 @@ public class InventoryProvider extends ContentProvider {
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
         rowsUpdated = database.update(InventoryEntry.TABLE_NAME, values, selection, selectionArgs);
 
-        if(rowsUpdated > 0) {
+        if (rowsUpdated > 0) {
             // Notify all the listeners that data at this uri has changed
             getContext().getContentResolver().notifyChange(uri, null);
         }
@@ -232,7 +236,7 @@ public class InventoryProvider extends ContentProvider {
                 throw new IllegalArgumentException("Deletion is not supported for " + uri);
         }
 
-        if(rowsDeleted > 0) {
+        if (rowsDeleted > 0) {
             // Notify all the listeners that data at this uri has changed
             getContext().getContentResolver().notifyChange(uri, null);
         }

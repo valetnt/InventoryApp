@@ -14,8 +14,8 @@
     <!-- Text hint for name field in the editor [CHAR LIMIT=30] -->
     <string name="hint_item_name">Item name</string>
 
-    <!-- Text hint for synthetic item description in the editor [CHAR LIMIT=30] -->
-    <string name="hint_item_description">Synthetic description</string>
+    <!-- Text hint for product code field in the editor [CHAR LIMIT=30] -->
+    <string name="hint_item_product_code">Product code</string>
 
     <!-- Text hint for item price in the editor [CHAR LIMIT=30] -->
     <string name="hint_item_price">Price</string>
@@ -49,5 +49,8 @@
 
     <!-- Label for button that issues a new order [CHAR LIMIT=30] -->
     <string name="label_order_button">order</string>
+
+    <!-- Label for unknown price -->
+    <string name="unknown_price">Unknown Price</string>
 
 </resources>

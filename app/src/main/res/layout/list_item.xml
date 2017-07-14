@@ -29,6 +29,7 @@
             android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/item_name"
                 style="@style/ListItemName"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -53,7 +54,7 @@
                     android:text="@string/label_quantity_in_stock" />
 
                 <TextView
-                    android:id="@+id/quantity_in_stock"
+                    android:id="@+id/item_quantity_in_stock"
                     style="@style/ListItemQuantity"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -81,13 +82,13 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/description"
-                    style="@style/ListItemDescription"
+                    android:id="@+id/item_product_code"
+                    style="@style/ListItemProductCode"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:maxLines="2"
-                    android:text="@string/hint_item_description" />
+                    android:text="@string/hint_item_product_code" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -102,7 +103,7 @@
                         android:text="@string/label_selling_price" />
 
                     <TextView
-                        android:id="@+id/price"
+                        android:id="@+id/item_price"
                         style="@style/ListItemPrice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
