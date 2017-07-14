@@ -12,39 +12,51 @@
     <style name="ListItemName" parent="AppTheme">
         <item name="android:textColor">@android:color/primary_text_light</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:textSize">@dimen/item_name_text_size</item>
+        <item name="android:textAppearance">?android:textAppearanceLarge</item>
     </style>
 
     <style name="ListItemDescription" parent="AppTheme">
         <item name="android:textColor">@android:color/tertiary_text_light</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:textSize">@dimen/item_description_text_size</item>
+        <item name="android:textAppearance">?android:textAppearanceSmall</item>
     </style>
 
     <style name="ListItemPrice" parent="AppTheme">
         <item name="android:textColor">@android:color/secondary_text_light</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:textSize">@dimen/item_price_text_size</item>
+        <item name="android:textAppearance">?android:textAppearanceMedium</item>
     </style>
 
     <style name="ListItemQuantity" parent="AppTheme">
         <item name="android:textColor">@android:color/secondary_text_light</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:textSize">@dimen/item_quantity_text_size</item>
+        <item name="android:textAppearance">?android:textAppearanceMedium</item>
     </style>
 
     <style name="LabelInStock" parent="AppTheme">
         <item name="android:textColor">@android:color/darker_gray</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textAllCaps">true</item>
-        <item name="android:textSize">@dimen/item_label_in_stock_text_size</item>
+        <item name="android:textAppearance">?android:textAppearanceSmall</item>
     </style>
 
-    <!-- Details Activity -->
-    <style name="DetailsTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <!-- Editor Activity -->
+    <style name="EditorTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/colorPrimaryEditor</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccentEditor</item>
     </style>
+
+    <!-- Style for a category in the editor -->
+    <style name="CategoryStyle" parent="EditorTheme">
+        <item name="android:textColor">@color/colorAccentEditor</item>
+        <item name="android:textAppearance">?android:textAppearanceSmall</item>
+    </style>
+
+    <!-- Style for an EditText field in the editor -->
+    <style name="EditorFieldStyle" parent="EditorTheme">
+        <item name="android:textAppearance">?android:textAppearanceMedium</item>
+    </style>
+
 
 </resources>

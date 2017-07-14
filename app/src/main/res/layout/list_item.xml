@@ -19,7 +19,7 @@
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:maxLines="1"
-            android:text="@string/item_name" />
+            android:text="@string/hint_item_name" />
 
         <LinearLayout
             android:id="@+id/in_stock"
@@ -31,15 +31,14 @@
                 style="@style/LabelInStock"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/label_in_stock" />
+                android:text="@string/label_quantity_in_stock" />
 
             <TextView
                 android:id="@+id/quantity_in_stock"
                 style="@style/ListItemQuantity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/item_quantity_in_stock" />
+                android:gravity="center" />
 
         </LinearLayout>
 
@@ -81,8 +80,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:maxLines="1"
-                android:text="@string/item_description" />
+                android:maxLines="2"
+                android:text="@string/hint_item_description" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -102,8 +101,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="@dimen/item_smaller_margin"
-                    android:layout_marginStart="@dimen/item_smaller_margin"
-                    android:text="@string/item_price" />
+                    android:layout_marginStart="@dimen/item_smaller_margin" />
 
                 <TextView
                     style="@style/ListItemPrice"
