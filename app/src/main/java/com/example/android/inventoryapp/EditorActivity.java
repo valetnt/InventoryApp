@@ -8,7 +8,9 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.example.android.inventoryapp.data.InventoryContract.InventoryEntry;
@@ -104,6 +106,31 @@ public class EditorActivity extends AppCompatActivity
         mSupplierEMailEditText = (EditText) findViewById(R.id.item_supplier_email);
         mImpendingOrdersText = (TextView) findViewById(R.id.number_of_items_ordered);
 
+        FrameLayout buttonAddPhoto = (FrameLayout) findViewById(R.id.button_add_photo);
+        FrameLayout buttonChangePhoto = (FrameLayout) findViewById(R.id.button_change_photo);
+        FrameLayout buttonIncreaseQuantity = (FrameLayout) findViewById(R.id.button_increase_quantity);
+        FrameLayout buttonDecreaseQuantity = (FrameLayout) findViewById(R.id.button_decrease_quantity);
+
+        buttonIncreaseQuantity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int quantity = Integer.parseInt(String.valueOf(mQuantityText.getText()));
+                quantity++;
+                mQuantityText.setText(String.valueOf(quantity));
+            }
+        });
+
+        buttonDecreaseQuantity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int quantity = Integer.parseInt(String.valueOf(mQuantityText.getText()));
+                if (quantity > 0) {
+                    quantity--;
+                    mQuantityText.setText(String.valueOf(quantity));
+                }
+            }
+        });
+
         mCurrentUri = getIntent().getData();
         if (mCurrentUri == null) {
             // We are in insert-new-item mode
@@ -111,10 +138,15 @@ public class EditorActivity extends AppCompatActivity
 
             mQuantityText.setText("0");
             mImpendingOrdersText.setText("0");
+            buttonChangePhoto.setVisibility(View.GONE);
+            buttonAddPhoto.setVisibility(View.VISIBLE);
 
         } else {
-            // We are in edit mode
+            // We are in edit-existing-item mode
             getSupportActionBar().setTitle(getString(R.string.editor_activity_title_edit_item));
+
+            buttonChangePhoto.setVisibility(View.VISIBLE);
+            buttonAddPhoto.setVisibility(View.GONE);
 
             // Retrieve item data via cursor loader
             LoaderManager loaderManager = getSupportLoaderManager();
