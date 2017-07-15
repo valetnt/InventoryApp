@@ -64,8 +64,7 @@
         <item name="android:padding">@dimen/editor_button_padding</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:fontFamily">sans-serif-light</item>
-        <item name="android:textColor">@android:color/primary_text_light</item>
+        <item name="android:textColor">@android:color/secondary_text_light</item>
     </style>
 
 </resources>

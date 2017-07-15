@@ -51,9 +51,8 @@
                         android:id="@+id/button_add_photo"
                         android:layout_width="@dimen/icon_touch_target_size"
                         android:layout_height="@dimen/icon_touch_target_size"
-                        android:layout_alignParentEnd="true"
-                        android:layout_alignParentRight="true"
                         android:layout_below="@id/item_picture"
+                        android:layout_centerHorizontal="true"
                         android:layout_marginTop="@dimen/editor_small_margin"
                         android:background="@drawable/rounded_corner_background"
                         android:padding="@dimen/editor_smaller_margin">
@@ -73,9 +72,8 @@
                         android:id="@+id/button_change_photo"
                         android:layout_width="@dimen/icon_touch_target_size"
                         android:layout_height="@dimen/icon_touch_target_size"
-                        android:layout_alignParentEnd="true"
-                        android:layout_alignParentRight="true"
                         android:layout_below="@id/item_picture"
+                        android:layout_centerHorizontal="true"
                         android:layout_marginTop="@dimen/editor_small_margin"
                         android:background="@drawable/rounded_corner_background"
                         android:padding="@dimen/editor_smaller_margin">
@@ -130,9 +128,8 @@
                     <EditText
                         android:id="@+id/item_price"
                         style="@style/EditorFieldStyle"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
                         android:hint="@string/hint_item_price"
                         android:inputType="number" />
 
@@ -167,6 +164,7 @@
                 android:layout_weight="1"
                 android:text="@string/label_quantity_in_stock" />
 
+            <!-- Input Fields -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -174,15 +172,29 @@
                 android:layout_weight="2"
                 android:orientation="horizontal">
 
+                <!-- Button for decreasing quantity -->
+                <FrameLayout
+                    android:id="@+id/button_decrease_quantity"
+                    android:layout_width="@dimen/icon_touch_target_size"
+                    android:layout_height="@dimen/icon_touch_target_size">
+
+                    <ImageView
+                        android:layout_width="@dimen/icon_size"
+                        android:layout_height="@dimen/icon_size"
+                        android:layout_gravity="center"
+                        android:background="@color/colorDecreaseQuantity"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_decrease" />
+
+                </FrameLayout>
+
                 <!-- Quantity field -->
                 <TextView
                     android:id="@+id/item_quantity_in_stock"
                     style="@style/EditorFieldStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="@dimen/editor_smaller_margin"
-                    android:layout_marginStart="@dimen/editor_smaller_margin" />
+                    android:layout_gravity="center_vertical" />
 
                 <!-- Text field -->
                 <TextView
@@ -190,62 +202,26 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginEnd="@dimen/activity_margin"
-                    android:layout_marginLeft="@dimen/editor_smaller_margin"
-                    android:layout_marginRight="@dimen/activity_margin"
-                    android:layout_marginStart="@dimen/editor_smaller_margin"
+                    android:layout_marginLeft="@dimen/editor_small_margin"
+                    android:layout_marginStart="@dimen/editor_small_margin"
                     android:orientation="vertical"
                     android:text="@string/label_item_units" />
 
-                <!-- Label -->
-                <TextView
-                    style="@style/CategoryStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="@dimen/editor_small_margin"
-                    android:layout_marginStart="@dimen/editor_small_margin"
-                    android:text="@string/label_change_quantity_in_stock" />
+                <!-- Button for increasing quantity -->
+                <FrameLayout
+                    android:id="@+id/button_increase_quantity"
+                    android:layout_width="@dimen/icon_touch_target_size"
+                    android:layout_height="@dimen/icon_touch_target_size">
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/editor_smaller_margin"
-                    android:layout_marginStart="@dimen/editor_smaller_margin"
-                    android:orientation="vertical">
+                    <ImageView
+                        android:layout_width="@dimen/icon_size"
+                        android:layout_height="@dimen/icon_size"
+                        android:layout_gravity="center"
+                        android:background="@color/colorIncreaseQuantity"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_increase" />
 
-                    <!-- Buttons for modifying quantity -->
-                    <FrameLayout
-                        android:id="@+id/button_increase_quantity"
-                        android:layout_width="@dimen/icon_touch_target_size"
-                        android:layout_height="@dimen/icon_touch_target_size">
-
-                        <ImageView
-                            android:layout_width="@dimen/icon_size"
-                            android:layout_height="@dimen/icon_size"
-                            android:layout_gravity="center"
-                            android:background="@color/colorIncreaseQuantity"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/ic_increase" />
-
-                    </FrameLayout>
-
-                    <FrameLayout
-                        android:id="@+id/button_decrease_quantity"
-                        android:layout_width="@dimen/icon_touch_target_size"
-                        android:layout_height="@dimen/icon_touch_target_size">
-
-                        <ImageView
-                            android:layout_width="@dimen/icon_size"
-                            android:layout_height="@dimen/icon_size"
-                            android:layout_gravity="center"
-                            android:background="@color/colorDecreaseQuantity"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/ic_decrease" />
-
-                    </FrameLayout>
-
-                </LinearLayout>
+                </FrameLayout>
 
             </LinearLayout>
 
@@ -320,6 +296,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
+                android:layout_marginLeft="@dimen/editor_small_margin"
+                android:layout_marginStart="@dimen/editor_small_margin"
                 android:layout_weight="2"
                 android:orientation="horizontal">
 
@@ -330,8 +308,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="@dimen/editor_smaller_margin"
-                    android:layout_marginStart="@dimen/editor_smaller_margin"
                     android:orientation="vertical" />
 
                 <!-- Text field -->
@@ -340,8 +316,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="@dimen/editor_smaller_margin"
-                    android:layout_marginStart="@dimen/editor_smaller_margin"
+                    android:layout_marginLeft="@dimen/editor_small_margin"
+                    android:layout_marginStart="@dimen/editor_small_margin"
                     android:orientation="vertical"
                     android:text="@string/label_item_units" />
 
