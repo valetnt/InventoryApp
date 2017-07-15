@@ -30,7 +30,7 @@
 
             <TextView
                 android:id="@+id/item_name"
-                style="@style/ListItemName"
+                style="@style/ListItemNameStyle"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginEnd="@dimen/item_smaller_margin"
@@ -48,14 +48,14 @@
                 android:orientation="vertical">
 
                 <TextView
-                    style="@style/LabelInStock"
+                    style="@style/LabelInStockStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/label_quantity_in_stock" />
 
                 <TextView
                     android:id="@+id/item_quantity_in_stock"
-                    style="@style/ListItemQuantity"
+                    style="@style/ListItemQuantityStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center" />
@@ -83,7 +83,7 @@
 
                 <TextView
                     android:id="@+id/item_product_code"
-                    style="@style/ListItemProductCode"
+                    style="@style/ListItemProductCodeStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
@@ -97,21 +97,21 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        style="@style/LabelInStock"
+                        style="@style/LabelInStockStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/label_selling_price" />
 
                     <TextView
                         android:id="@+id/item_price"
-                        style="@style/ListItemPrice"
+                        style="@style/ListItemPriceStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="@dimen/item_smaller_margin"
                         android:layout_marginStart="@dimen/item_smaller_margin" />
 
                     <TextView
-                        style="@style/ListItemPrice"
+                        style="@style/ListItemPriceStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="@dimen/item_smaller_margin"
@@ -124,13 +124,13 @@
 
             <FrameLayout
                 android:id="@+id/button_sell"
-                android:layout_width="@dimen/touch_target_size"
-                android:layout_height="@dimen/touch_target_size"
+                android:layout_width="@dimen/icon_touch_target_size"
+                android:layout_height="@dimen/icon_touch_target_size"
                 android:layout_gravity="center_vertical">
 
                 <ImageView
-                    android:layout_width="@dimen/button_size"
-                    android:layout_height="@dimen/button_size"
+                    android:layout_width="@dimen/icon_size"
+                    android:layout_height="@dimen/icon_size"
                     android:layout_gravity="center"
                     android:scaleType="centerCrop"
                     android:src="@drawable/ic_check" />

@@ -7,4 +7,5 @@
     <color name="colorAccentEditor">#0288D1</color>
     <color name="colorIncreaseQuantity">#C5E1A5</color>
     <color name="colorDecreaseQuantity">#EF9A9A</color>
+    <color name="colorEditorButton">#B3E5FC</color>
 </resources>

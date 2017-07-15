@@ -9,31 +9,31 @@
     </style>
 
     <!-- Catalog Items -->
-    <style name="ListItemName" parent="AppTheme">
+    <style name="ListItemNameStyle" parent="AppTheme">
         <item name="android:textColor">@android:color/primary_text_light</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textAppearance">?android:textAppearanceMedium</item>
     </style>
 
-    <style name="ListItemProductCode" parent="AppTheme">
+    <style name="ListItemProductCodeStyle" parent="AppTheme">
         <item name="android:textColor">@android:color/tertiary_text_light</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textAppearance">?android:textAppearanceMedium</item>
     </style>
 
-    <style name="ListItemPrice" parent="AppTheme">
+    <style name="ListItemPriceStyle" parent="AppTheme">
         <item name="android:textColor">@android:color/secondary_text_light</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textAppearance">?android:textAppearanceMedium</item>
     </style>
 
-    <style name="ListItemQuantity" parent="AppTheme">
+    <style name="ListItemQuantityStyle" parent="AppTheme">
         <item name="android:textColor">@android:color/secondary_text_light</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textAppearance">?android:textAppearanceMedium</item>
     </style>
 
-    <style name="LabelInStock" parent="AppTheme">
+    <style name="LabelInStockStyle" parent="AppTheme">
         <item name="android:textColor">@android:color/darker_gray</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textAllCaps">true</item>
@@ -58,5 +58,20 @@
         <item name="android:textAppearance">?android:textAppearanceMedium</item>
     </style>
 
+    <!-- Style for the measurement units for an EditText field in the editor -->
+    <style name="EditorUnitsStyle">
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:textAppearance">?android:textAppearanceSmall</item>
+    </style>
+
+    <!-- Style for Order Button in the editor -->
+    <style name="OrderButtonStyle" parent="EditorTheme">
+        <item name="android:textAppearance">?android:textAppearanceSmall</item>
+        <item name="android:padding">@dimen/editor_button_padding</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:textColor">@android:color/primary_text_light</item>
+    </style>
 
 </resources>

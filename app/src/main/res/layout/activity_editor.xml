@@ -32,15 +32,44 @@
                     android:layout_height="wrap_content"
                     android:text="@string/label_overview" />
 
-                <!-- Picture -->
-                <ImageView
-                    android:layout_width="@dimen/image_size"
-                    android:layout_height="@dimen/image_size"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginBottom="@dimen/activity_margin"
-                    android:layout_marginTop="@dimen/activity_margin"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/no_image_available" />
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical">
+
+                    <!-- Picture -->
+                    <ImageView
+                        android:layout_width="@dimen/image_size"
+                        android:layout_height="@dimen/image_size"
+                        android:layout_marginBottom="@dimen/activity_margin"
+                        android:layout_marginTop="@dimen/activity_margin"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/no_image_available" />
+
+                    <!-- Button to insert picture -->
+                    <FrameLayout
+                        android:id="@+id/button_add_photo"
+                        android:layout_width="@dimen/icon_touch_target_size"
+                        android:layout_height="@dimen/icon_touch_target_size"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:background="@drawable/rounded_corner_background"
+                        android:padding="@dimen/editor_smaller_margin">
+
+                        <ImageView
+                            android:layout_width="@dimen/icon_size"
+                            android:layout_height="@dimen/icon_size"
+                            android:layout_gravity="center"
+                            android:background="@color/colorEditorButton"
+                            android:scaleType="centerInside"
+                            android:src="@drawable/ic_add_photo" />
+
+                    </FrameLayout>
+
+                    <!-- Button to edit picture -->
+
+                </RelativeLayout>
 
             </LinearLayout>
 
@@ -71,14 +100,32 @@
                     android:hint="@string/hint_item_product_code"
                     android:inputType="text" />
 
-                <!-- Price field -->
-                <EditText
-                    android:id="@+id/edit_item_price"
-                    style="@style/EditorFieldStyle"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/hint_item_price"
-                    android:inputType="numberDecimal" />
+                    android:orientation="horizontal">
+
+                    <!-- Price field -->
+                    <EditText
+                        android:id="@+id/edit_item_price"
+                        style="@style/EditorFieldStyle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="@string/hint_item_price"
+                        android:inputType="number" />
+
+                    <!-- Currency -->
+                    <TextView
+                        style="@style/EditorUnitsStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="@dimen/activity_margin"
+                        android:layout_marginStart="@dimen/activity_margin"
+                        android:text="@string/label_currency_cents" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -96,52 +143,61 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_weight="2"
+                android:layout_weight="1"
                 android:text="@string/label_quantity_in_stock" />
 
-            <!-- Quantity field -->
-            <TextView
-                android:id="@+id/edit_item_quantity_in_stock"
-                style="@style/EditorFieldStyle"
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="@dimen/editor_smaller_margin"
-                android:layout_marginStart="@dimen/editor_smaller_margin"
-                android:layout_weight="2" />
+                android:layout_weight="2"
+                android:orientation="horizontal">
 
-            <!-- Buttons for modifying quantity -->
-            <FrameLayout
-                android:id="@+id/button_increase_quantity"
-                android:layout_width="0dp"
-                android:layout_height="@dimen/touch_target_size"
-                android:layout_weight="1">
+                <!-- Quantity field -->
+                <TextView
+                    android:id="@+id/edit_item_quantity_in_stock"
+                    style="@style/EditorFieldStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginEnd="@dimen/activity_margin"
+                    android:layout_marginLeft="@dimen/editor_smaller_margin"
+                    android:layout_marginRight="@dimen/activity_margin"
+                    android:layout_marginStart="@dimen/editor_smaller_margin" />
 
-                <ImageView
-                    android:layout_width="@dimen/button_size"
-                    android:layout_height="@dimen/button_size"
-                    android:layout_gravity="center"
-                    android:background="@color/colorIncreaseQuantity"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/ic_increase" />
+                <!-- Buttons for modifying quantity -->
+                <FrameLayout
+                    android:id="@+id/button_increase_quantity"
+                    android:layout_width="@dimen/icon_touch_target_size"
+                    android:layout_height="@dimen/icon_touch_target_size"
+                    android:layout_marginEnd="@dimen/editor_smaller_margin"
+                    android:layout_marginRight="@dimen/editor_smaller_margin">
 
-            </FrameLayout>
+                    <ImageView
+                        android:layout_width="@dimen/icon_size"
+                        android:layout_height="@dimen/icon_size"
+                        android:layout_gravity="center"
+                        android:background="@color/colorIncreaseQuantity"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_increase" />
 
-            <FrameLayout
-                android:id="@+id/button_decrease_quantity"
-                android:layout_width="0dp"
-                android:layout_height="@dimen/touch_target_size"
-                android:layout_weight="1">
+                </FrameLayout>
 
-                <ImageView
-                    android:layout_width="@dimen/button_size"
-                    android:layout_height="@dimen/button_size"
-                    android:layout_gravity="center"
-                    android:background="@color/colorDecreaseQuantity"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/ic_decrease" />
+                <FrameLayout
+                    android:id="@+id/button_decrease_quantity"
+                    android:layout_width="@dimen/icon_touch_target_size"
+                    android:layout_height="@dimen/icon_touch_target_size">
 
-            </FrameLayout>
+                    <ImageView
+                        android:layout_width="@dimen/icon_size"
+                        android:layout_height="@dimen/icon_size"
+                        android:layout_gravity="center"
+                        android:background="@color/colorDecreaseQuantity"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_decrease" />
+
+                </FrameLayout>
+
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -192,8 +248,9 @@
 
         </LinearLayout>
 
-        <!-- Orders in Progress category -->
+        <!-- Impending Orders category -->
         <LinearLayout
+            android:id="@+id/impending_orders"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/activity_margin"
@@ -207,30 +264,58 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:text="@string/label_orders_in_progress" />
+                android:text="@string/label_impending_orders" />
 
-            <!-- Text field -->
-            <TextView
-                android:id="@+id/item_orders_in_progress"
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="@dimen/editor_smaller_margin"
-                android:layout_marginStart="@dimen/editor_smaller_margin"
                 android:layout_weight="2"
-                android:orientation="vertical" />
+                android:orientation="horizontal">
+
+                <!-- Text field -->
+                <TextView
+                    android:id="@+id/number_of_items_ordered"
+                    style="@style/EditorFieldStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="@dimen/editor_smaller_margin"
+                    android:layout_marginStart="@dimen/editor_smaller_margin"
+                    android:orientation="vertical" />
+
+                <!-- Text field -->
+                <TextView
+                    style="@style/EditorUnitsStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="@dimen/activity_margin"
+                    android:layout_marginStart="@dimen/activity_margin"
+                    android:orientation="vertical"
+                    android:text="@string/label_item_units" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
-        <Button
+        <FrameLayout
             android:id="@+id/button_order"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/button_touch_target_height"
             android:layout_gravity="end"
-            android:layout_marginTop="@dimen/activity_margin"
-            android:background="@drawable/order_button_background"
-            android:text="@string/label_order_button"
-            android:textColor="@android:color/white" />
+            android:layout_marginTop="@dimen/activity_margin">
+
+            <TextView
+                style="@style/OrderButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/button_height"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/editor_smaller_margin"
+                android:background="@drawable/rounded_corner_background"
+                android:gravity="center"
+                android:text="@string/label_order_button" />
+
+        </FrameLayout>
 
     </LinearLayout>
 

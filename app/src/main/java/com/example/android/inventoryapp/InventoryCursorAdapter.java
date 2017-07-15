@@ -57,18 +57,23 @@ public class InventoryCursorAdapter extends CursorAdapter {
         String currentName = cursor.getString(cursor.getColumnIndex(InventoryEntry.COLUMN_NAME));
         String currentProductCode = cursor.getString(cursor.getColumnIndex(
                 InventoryEntry.COLUMN_CODE));
-        String currentPrice = String.valueOf(cursor.getInt(cursor.getColumnIndex(
-                InventoryEntry.COLUMN_PRICE)));
         String currentQuantity = String.valueOf(cursor.getInt(cursor.getColumnIndex(
                 InventoryEntry.COLUMN_QUANTITY)));
 
         nameTextView.setText(currentName);
         productCodeTextView.setText(currentProductCode);
-        if (TextUtils.isEmpty(currentPrice)) {
-            priceTextView.setText(view.getContext().getString(R.string.unknown_price));
-        } else {
-            priceTextView.setText(currentPrice);
-        }
         quantityTextView.setText(currentQuantity);
+
+        String currentPrice = view.getContext().getString(R.string.unknown_price);
+        int dataTypeOfCurrentPrice = cursor.getType(cursor.getColumnIndex(
+                InventoryEntry.COLUMN_PRICE));
+        if (dataTypeOfCurrentPrice == Cursor.FIELD_TYPE_INTEGER) {
+            // If field is not null, convert the price in cents (integer) into
+            // a price in dollars (decimal)
+            double priceInDollars = cursor.getInt(cursor.getColumnIndex(
+                    InventoryEntry.COLUMN_PRICE)) / 100;
+            currentPrice = String.valueOf(priceInDollars);
+        }
+        priceTextView.setText(currentPrice);
     }
 }
