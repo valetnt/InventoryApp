@@ -1,5 +1,7 @@
 package com.example.android.inventoryapp;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v4.app.LoaderManager;
@@ -14,6 +16,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.inventoryapp.data.InventoryContract.InventoryEntry;
 
@@ -191,5 +194,97 @@ public class EditorActivity extends AppCompatActivity
             menuItem.setVisible(false);
         }
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+
+            case R.id.action_save:
+                saveItem();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void saveItem() {
+
+        String item_name = mNameEditText.getText().toString().trim();
+        String item_code = mCodeEditText.getText().toString().trim();
+        int item_price = Integer.parseInt(mPriceEditText.getText().toString());
+        String supplier_name = mSupplierEditText.getText().toString().trim();
+        String supplier_email = mSupplierEMailEditText.getText().toString().trim();
+        int quantity;
+        int impending_orders;
+
+        if (TextUtils.isEmpty(item_name)) {
+            Toast.makeText(this, "Field NAME cannot be empty!",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (TextUtils.isEmpty(item_code)) {
+            Toast.makeText(this, "Field PRODUCT_CODE cannot be empty!",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (TextUtils.isEmpty(mQuantityText.getText())) {
+            Toast.makeText(this, "Field QUANTITY_IN_STOCK cannot be empty!",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        } else {
+            quantity = Integer.parseInt(mQuantityText.getText().toString());
+        }
+
+        if (TextUtils.isEmpty(mImpendingOrdersText.getText())) {
+            Toast.makeText(this, "Field IMPENDING_ORDERS cannot be empty!",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        } else {
+            impending_orders = Integer.parseInt(mImpendingOrdersText.getText().toString());
+        }
+
+        ContentResolver contentResolver = getContentResolver();
+
+        ContentValues values = new ContentValues();
+        values.put(InventoryEntry.COLUMN_NAME, item_name);
+        values.put(InventoryEntry.COLUMN_CODE, item_code);
+        values.put(InventoryEntry.COLUMN_PRICE, item_price);
+        values.put(InventoryEntry.COLUMN_QUANTITY, quantity);
+        values.put(InventoryEntry.COLUMN_SUPPLIER_NAME, supplier_name);
+        values.put(InventoryEntry.COLUMN_SUPPLIER_MAIL, supplier_email);
+        values.put(InventoryEntry.COLUMN_IMPENDING_ORDERS, impending_orders);
+
+        if (mCurrentUri == null) {
+
+            // Save new item into the database
+            Uri newUri = contentResolver.insert(InventoryEntry.CONTENT_URI, values);
+            // Show a toast message depending on whether or not the insertion was successful
+            if (newUri == null) {
+                // If the new content URI is null, then there was an error with insertion.
+                Toast.makeText(this, getString(R.string.insert_failed),
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                // Otherwise, the insertion was successful and we can display a toast.
+                Toast.makeText(this, getString(R.string.insert_successful),
+                        Toast.LENGTH_SHORT).show();
+            }
+
+        } else {
+
+            // Update item
+            int rowUpdated = contentResolver.update(mCurrentUri, values, null, null);
+            // Show a toast message depending on whether or not the updating was successful
+            if (rowUpdated == 1) {
+                Toast.makeText(this, getString(R.string.update_successful),
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, getString(R.string.update_failed),
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+        finish();
     }
 }

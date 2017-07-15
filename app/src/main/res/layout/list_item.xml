@@ -4,24 +4,7 @@
     android:layout_height="wrap_content"
     android:layout_marginTop="@dimen/item_smaller_margin"
     android:baselineAligned="false"
-    android:minHeight="@dimen/image_size"
-    android:orientation="horizontal">
-
-    <ImageView
-        android:layout_width="@dimen/image_size"
-        android:layout_height="@dimen/image_size"
-        android:layout_gravity="center"
-        android:scaleType="centerInside"
-        android:src="@drawable/no_image_available" />
-
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginLeft="@dimen/activity_margin"
-        android:layout_marginStart="@dimen/activity_margin"
-        android:layout_weight="1"
-        android:orientation="vertical">
+    android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -138,7 +121,5 @@
             </FrameLayout>
 
         </LinearLayout>
-
-    </LinearLayout>
 
 </LinearLayout>

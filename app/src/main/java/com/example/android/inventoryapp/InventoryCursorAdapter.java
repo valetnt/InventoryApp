@@ -71,7 +71,7 @@ public class InventoryCursorAdapter extends CursorAdapter {
             // If field is not null, convert the price in cents (integer) into
             // a price in dollars (decimal)
             double priceInDollars = cursor.getInt(cursor.getColumnIndex(
-                    InventoryEntry.COLUMN_PRICE)) / 100;
+                    InventoryEntry.COLUMN_PRICE)) / 100.;
             currentPrice = String.valueOf(priceInDollars);
         }
         priceTextView.setText(currentPrice);

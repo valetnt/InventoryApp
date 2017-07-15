@@ -80,7 +80,19 @@
     <!-- Label for editor menu option to save pet and leave editor [CHAR LIMIT=20] -->
     <string name="action_save">Save</string>
 
-    <!-- Label for editor overflow menu option that deletes the current pet [CHAR LIMIT=20] -->
+    <!-- Label for editor overflow menu option that deletes the current item [CHAR LIMIT=20] -->
     <string name="action_delete">Delete</string>
+
+    <!-- Toast message notifying the user that a new item has been inserted into the database -->
+    <string name="insert_successful">Item saved</string>
+
+    <!-- Toast message notifying the user that a new item has been inserted into the database -->
+    <string name="update_successful">Item updated</string>
+
+    <!-- Toast message notifying the user that inserting new item into the database has failed -->
+    <string name="insert_failed">Error with saving item</string>
+
+    <!-- Toast message notifying the user that inserting new item into the database has failed -->
+    <string name="update_failed">Error with saving changes</string>
 
 </resources>
