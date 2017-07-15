@@ -41,6 +41,9 @@
     <!-- Text hint for "supplier-email-address" field in the editor [CHAR LIMIT=30] -->
     <string name="hint_item_supplier_email">Supplier E-Mail</string>
 
+    <!-- Text hint for "impending-orders" field in the editor [CHAR LIMIT=30] -->
+    <string name="hint_items_ordered">Nr. of items ordered</string>
+
     <!-- Label for price in the catalog [CHAR LIMIT=30] -->
     <string name="label_selling_price">Selling price:</string>
 
@@ -73,5 +76,11 @@
 
     <!-- Label for generic unknown field -->
     <string name="unknown">Unknown</string>
+
+    <!-- Label for editor menu option to save pet and leave editor [CHAR LIMIT=20] -->
+    <string name="action_save">Save</string>
+
+    <!-- Label for editor overflow menu option that deletes the current pet [CHAR LIMIT=20] -->
+    <string name="action_delete">Delete</string>
 
 </resources>

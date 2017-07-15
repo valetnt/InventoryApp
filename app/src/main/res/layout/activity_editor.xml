@@ -298,30 +298,21 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginLeft="@dimen/editor_small_margin"
-                android:layout_marginStart="@dimen/editor_small_margin"
+                android:layout_marginLeft="@dimen/editor_smaller_margin"
+                android:layout_marginStart="@dimen/editor_smaller_margin"
                 android:layout_weight="2"
                 android:orientation="horizontal">
 
-                <!-- Text field -->
-                <TextView
+                <!-- Input field -->
+                <EditText
                     android:id="@+id/number_of_items_ordered"
                     style="@style/EditorFieldStyle"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
+                    android:hint="@string/hint_items_ordered"
+                    android:inputType="number"
                     android:orientation="vertical" />
-
-                <!-- Text field -->
-                <TextView
-                    style="@style/EditorFieldStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="@dimen/editor_small_margin"
-                    android:layout_marginStart="@dimen/editor_small_margin"
-                    android:orientation="vertical"
-                    android:text="@string/label_item_units" />
 
             </LinearLayout>
 
