@@ -27,6 +27,9 @@
     <!-- Smaller margin within the List Item Layout -->
     <dimen name="item_smaller_margin">4dp</dimen>
 
+    <!-- Small margin within the Editor Layout -->
+    <dimen name="editor_small_margin">12dp</dimen>
+
     <!-- Smaller margin within the Editor Layout -->
     <dimen name="editor_smaller_margin">4dp</dimen>
 

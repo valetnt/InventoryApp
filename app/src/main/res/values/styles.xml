@@ -58,12 +58,6 @@
         <item name="android:textAppearance">?android:textAppearanceMedium</item>
     </style>
 
-    <!-- Style for the measurement units for an EditText field in the editor -->
-    <style name="EditorUnitsStyle">
-        <item name="android:layout_alignParentRight">true</item>
-        <item name="android:textAppearance">?android:textAppearanceSmall</item>
-    </style>
-
     <!-- Style for Order Button in the editor -->
     <style name="OrderButtonStyle" parent="EditorTheme">
         <item name="android:textAppearance">?android:textAppearanceSmall</item>

@@ -2,6 +2,12 @@
     <!-- Name for the application [CHAR LIMIT=12] -->
     <string name="app_name">InventoryApp</string>
 
+    <!-- Title for the activity to add a new item [CHAR LIMIT=20] -->
+    <string name="editor_activity_title_new_item">Add New Item</string>
+
+    <!-- Title for the activity to update an already existing item [CHAR LIMIT=20] -->
+    <string name="editor_activity_title_edit_item">Edit Item</string>
+
     <!-- Name for the editor activity [CHAR LIMIT=12] -->
     <string name="editor_activity_name">Edit Item</string>
 
@@ -23,6 +29,12 @@
     <!-- Text hint for "quantity-in-stock" field in the editor [CHAR LIMIT=30] -->
     <string name="hint_item_quantity_in_stock">Quantity in stock</string>
 
+    <!-- Label for button to add photo in the editor -->
+    <string name="label_add_picture">Add Photo</string>
+
+    <!-- Label for button to change photo in the editor -->
+    <string name="label_change_picture">Change Photo</string>
+
     <!-- Text hint for "supplier-name" field in the editor [CHAR LIMIT=30] -->
     <string name="hint_item_supplier_name">Supplier</string>
 
@@ -38,8 +50,11 @@
     <!-- Label for currency in the catalog [CHAR LIMIT=30] -->
     <string name="label_currency">$</string>
 
-    <!-- Label for quantity of items in stock in the catalog and editor [CHAR LIMIT=30] -->
+    <!-- Label for quantity of items in stock in the editor [CHAR LIMIT=30] -->
     <string name="label_quantity_in_stock">In stock:</string>
+
+    <!-- Label for changing the quantity of items in stock in the editor [CHAR LIMIT=30] -->
+    <string name="label_change_quantity_in_stock">Edit:</string>
 
     <!-- Label for overview of attributes in the editor [CHAR LIMIT=30] -->
     <string name="label_overview">Overview:</string>
@@ -56,7 +71,7 @@
     <!-- Label for button that issues a new order [CHAR LIMIT=30] -->
     <string name="label_order_button">new order</string>
 
-    <!-- Label for unknown price -->
-    <string name="unknown_price">Unknown Price</string>
+    <!-- Label for generic unknown field -->
+    <string name="unknown">Unknown</string>
 
 </resources>

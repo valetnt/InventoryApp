@@ -64,7 +64,7 @@ public class InventoryCursorAdapter extends CursorAdapter {
         productCodeTextView.setText(currentProductCode);
         quantityTextView.setText(currentQuantity);
 
-        String currentPrice = view.getContext().getString(R.string.unknown_price);
+        String currentPrice = view.getContext().getString(R.string.unknown);
         int dataTypeOfCurrentPrice = cursor.getType(cursor.getColumnIndex(
                 InventoryEntry.COLUMN_PRICE));
         if (dataTypeOfCurrentPrice == Cursor.FIELD_TYPE_INTEGER) {

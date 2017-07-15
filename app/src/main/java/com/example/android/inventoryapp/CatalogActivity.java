@@ -1,7 +1,9 @@
 package com.example.android.inventoryapp;
 
+import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -9,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.design.widget.FloatingActionButton;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.android.inventoryapp.data.InventoryContract.InventoryEntry;
@@ -71,5 +74,14 @@ public class CatalogActivity extends AppCompatActivity
         // Initialize the cursor loader
         LoaderManager loaderManager = getSupportLoaderManager();
         loaderManager.initLoader(CATALOG_LOADER, null, this);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent openEditor = new Intent(view.getContext(), EditorActivity.class);
+                openEditor.setData(ContentUris.withAppendedId(InventoryEntry.CONTENT_URI, id));
+                startActivity(openEditor);
+            }
+        });
     }
 }
