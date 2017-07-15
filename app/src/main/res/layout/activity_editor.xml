@@ -182,9 +182,10 @@
                         android:layout_width="@dimen/icon_size"
                         android:layout_height="@dimen/icon_size"
                         android:layout_gravity="center"
-                        android:background="@color/colorDecreaseQuantity"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/ic_decrease" />
+                        android:background="@color/colorAccentEditor"
+                        android:padding="@dimen/editor_smaller_margin"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/ic_remove" />
 
                 </FrameLayout>
 
@@ -217,9 +218,10 @@
                         android:layout_width="@dimen/icon_size"
                         android:layout_height="@dimen/icon_size"
                         android:layout_gravity="center"
-                        android:background="@color/colorIncreaseQuantity"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/ic_increase" />
+                        android:background="@color/colorAccentEditor"
+                        android:padding="@dimen/editor_smaller_margin"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/ic_add" />
 
                 </FrameLayout>
 
