@@ -13,9 +13,6 @@ import android.util.Log;
 
 import com.example.android.inventoryapp.data.InventoryContract.InventoryEntry;
 
-import static android.R.attr.name;
-import static com.example.android.inventoryapp.R.id.impending_orders;
-
 public class InventoryProvider extends ContentProvider {
 
     /**
@@ -200,6 +197,7 @@ public class InventoryProvider extends ContentProvider {
                 return updateItem(uri, values, selection, selectionArgs);
 
             case INVENTORY_ID:
+
                 // Update only the row associated to the specific id appended to the content URI
                 selection = InventoryEntry._ID + " =? ";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
@@ -268,7 +266,6 @@ public class InventoryProvider extends ContentProvider {
         // Update database
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
         rowsUpdated = database.update(InventoryEntry.TABLE_NAME, values, selection, selectionArgs);
-
         if (rowsUpdated > 0) {
             // Notify all the listeners that data at this uri has changed
             getContext().getContentResolver().notifyChange(uri, null);

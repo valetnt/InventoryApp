@@ -2,124 +2,128 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/item_smaller_margin"
     android:baselineAligned="false"
     android:orientation="vertical">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        android:orientation="horizontal">
+
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_marginEnd="@dimen/item_smaller_margin"
+            android:layout_marginRight="@dimen/item_smaller_margin"
+            android:layout_weight="3"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/item_name"
                 style="@style/ListItemNameStyle"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginEnd="@dimen/item_smaller_margin"
-                android:layout_marginRight="@dimen/item_smaller_margin"
-                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:gravity="center_vertical"
                 android:maxLines="1"
                 android:text="@string/hint_item_name" />
 
-            <LinearLayout
-                android:id="@+id/in_stock"
-                android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/item_product_code"
+                style="@style/ListItemProductCodeStyle"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    style="@style/LabelInStockStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/label_quantity_in_stock" />
-
-                <TextView
-                    android:id="@+id/item_quantity_in_stock"
-                    style="@style/ListItemQuantityStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center" />
-
-            </LinearLayout>
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/hint_item_product_code" />
 
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:id="@+id/in_stock"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/item_smaller_margin"
-            android:layout_marginTop="@dimen/item_smaller_margin"
-            android:baselineAligned="false"
-            android:orientation="horizontal">
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-            <LinearLayout
-                android:layout_width="0dp"
+            <TextView
+                style="@style/LabelInStockStyle"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/item_smaller_margin"
-                android:layout_marginRight="@dimen/item_smaller_margin"
-                android:layout_weight="3"
-                android:gravity="center_vertical"
-                android:orientation="vertical">
+                android:gravity="center"
+                android:text="@string/label_quantity_in_stock" />
 
-                <TextView
-                    android:id="@+id/item_product_code"
-                    style="@style/ListItemProductCodeStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:maxLines="2"
-                    android:text="@string/hint_item_product_code" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/item_smaller_margin"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        style="@style/LabelInStockStyle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/label_selling_price" />
-
-                    <TextView
-                        android:id="@+id/item_price"
-                        style="@style/ListItemPriceStyle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/item_smaller_margin"
-                        android:layout_marginStart="@dimen/item_smaller_margin" />
-
-                    <TextView
-                        style="@style/ListItemPriceStyle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/item_smaller_margin"
-                        android:layout_marginStart="@dimen/item_smaller_margin"
-                        android:text="@string/label_currency" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <FrameLayout
-                android:id="@+id/button_sell"
-                android:layout_width="@dimen/icon_touch_target_size"
-                android:layout_height="@dimen/icon_touch_target_size"
-                android:layout_gravity="center_vertical">
-
-                <ImageView
-                    android:layout_width="@dimen/icon_size"
-                    android:layout_height="@dimen/icon_size"
-                    android:layout_gravity="center"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/ic_monetize" />
-
-            </FrameLayout>
+            <TextView
+                android:id="@+id/item_quantity_in_stock"
+                style="@style/ListItemQuantityStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center" />
 
         </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/item_smaller_margin"
+        android:baselineAligned="false"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="@dimen/item_smaller_margin"
+            android:layout_marginRight="@dimen/item_smaller_margin"
+            android:layout_marginTop="@dimen/item_smaller_margin"
+            android:layout_weight="3"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/LabelInStockStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_selling_price" />
+
+            <TextView
+                android:id="@+id/item_price"
+                style="@style/ListItemPriceStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/item_smaller_margin"
+                android:layout_marginStart="@dimen/item_smaller_margin" />
+
+            <TextView
+                android:id="@+id/currency_symbol"
+                style="@style/ListItemPriceStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/item_smaller_margin"
+                android:layout_marginStart="@dimen/item_smaller_margin"
+                android:text="@string/label_currency" />
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/button_sell"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/icon_touch_target_size"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1">
+
+            <ImageView
+                android:layout_width="@dimen/icon_size"
+                android:layout_height="@dimen/icon_size"
+                android:layout_gravity="center"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_monetize" />
+
+        </FrameLayout>
+
+    </LinearLayout>
 
 </LinearLayout>

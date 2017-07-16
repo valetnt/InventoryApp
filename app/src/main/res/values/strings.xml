@@ -45,7 +45,7 @@
     <string name="hint_items_ordered">Nr. of items ordered</string>
 
     <!-- Label for price in the catalog [CHAR LIMIT=30] -->
-    <string name="label_selling_price">Selling price:</string>
+    <string name="label_selling_price">price:</string>
 
     <!-- Label for currency in the editor [CHAR LIMIT=30] -->
     <string name="label_currency_cents">&#162;</string>

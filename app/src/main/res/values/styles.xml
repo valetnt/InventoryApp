@@ -18,19 +18,19 @@
     <style name="ListItemProductCodeStyle" parent="AppTheme">
         <item name="android:textColor">@android:color/tertiary_text_light</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:textAppearance">?android:textAppearanceMedium</item>
+        <item name="android:textAppearance">?android:textAppearanceSmall</item>
     </style>
 
     <style name="ListItemPriceStyle" parent="AppTheme">
         <item name="android:textColor">@android:color/secondary_text_light</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:textAppearance">?android:textAppearanceMedium</item>
+        <item name="android:textAppearance">?android:textAppearanceSmall</item>
     </style>
 
     <style name="ListItemQuantityStyle" parent="AppTheme">
         <item name="android:textColor">@android:color/secondary_text_light</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:textAppearance">?android:textAppearanceMedium</item>
+        <item name="android:textAppearance">?android:textAppearanceSmall</item>
     </style>
 
     <style name="LabelInStockStyle" parent="AppTheme">

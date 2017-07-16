@@ -15,7 +15,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -177,11 +176,11 @@ public class EditorActivity extends AppCompatActivity
         mSupplierEMailEditText = (EditText) findViewById(R.id.item_supplier_email);
         mImpendingOrdersText = (EditText) findViewById(R.id.number_of_items_ordered);
 
-        FrameLayout buttonAddPhoto = (FrameLayout) findViewById(R.id.button_add_photo);
-        FrameLayout buttonChangePhoto = (FrameLayout) findViewById(R.id.button_change_photo);
-        FrameLayout buttonIncreaseQuantity = (FrameLayout) findViewById(R.id.button_increase_quantity);
-        FrameLayout buttonDecreaseQuantity = (FrameLayout) findViewById(R.id.button_decrease_quantity);
-        FrameLayout buttonOrder = (FrameLayout) findViewById(R.id.button_order);
+        View buttonAddPhoto = findViewById(R.id.button_add_photo);
+        View buttonChangePhoto = findViewById(R.id.button_change_photo);
+        View buttonIncreaseQuantity = findViewById(R.id.button_increase_quantity);
+        View buttonDecreaseQuantity = findViewById(R.id.button_decrease_quantity);
+        View buttonOrder = findViewById(R.id.button_order);
 
         buttonIncreaseQuantity.setOnClickListener(new View.OnClickListener() {
             @Override
