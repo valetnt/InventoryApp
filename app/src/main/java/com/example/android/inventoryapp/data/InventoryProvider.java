@@ -13,6 +13,9 @@ import android.util.Log;
 
 import com.example.android.inventoryapp.data.InventoryContract.InventoryEntry;
 
+import static android.R.attr.name;
+import static com.example.android.inventoryapp.R.id.impending_orders;
+
 public class InventoryProvider extends ContentProvider {
 
     /**
@@ -134,7 +137,36 @@ public class InventoryProvider extends ContentProvider {
      */
     private Uri insertItem(Uri uri, ContentValues values) {
 
-        // TODO: DATA VALIDATION
+        // Data Validation
+        // Check that name is not null
+        String name = values.getAsString(InventoryEntry.COLUMN_NAME);
+        if (name == null) {
+            throw new IllegalArgumentException("Item requires a name");
+        }
+
+        // Check that product code is not null
+        String product_code = values.getAsString(InventoryEntry.COLUMN_CODE);
+        if (product_code == null) {
+            throw new IllegalArgumentException("Item requires a product code");
+        }
+
+        //Check that price, if specified, is positive
+        Integer price = values.getAsInteger(InventoryEntry.COLUMN_PRICE);
+        if (price != null && price < 0) {
+            throw new IllegalArgumentException("Item requires valid price");
+        }
+
+        // Check that quantity in stock, if specified, is positive
+        Integer quantity = values.getAsInteger(InventoryEntry.COLUMN_QUANTITY);
+        if (quantity != null && quantity < 0) {
+            throw new IllegalArgumentException("Item requires valid quantity");
+        }
+
+        // Check that number of items ordered, if specified, is positive
+        Integer impending_orders = values.getAsInteger(InventoryEntry.COLUMN_IMPENDING_ORDERS);
+        if (impending_orders != null && impending_orders < 0) {
+            throw new IllegalArgumentException("Number of items ordered is invalid");
+        }
 
         // Get writable database
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
@@ -185,7 +217,46 @@ public class InventoryProvider extends ContentProvider {
      */
     private int updateItem(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 
-        // TODO: DATA VALIDATION
+        // Data Validation
+        // If name is updated, new value must be not null
+        if (values.containsKey(InventoryEntry.COLUMN_NAME)) {
+            String name = values.getAsString(InventoryEntry.COLUMN_NAME);
+            if (name == null) {
+                throw new IllegalArgumentException("Item requires a name");
+            }
+        }
+
+        // If product code is updated, new value must be not null
+        if (values.containsKey(InventoryEntry.COLUMN_CODE)) {
+            String product_code = values.getAsString(InventoryEntry.COLUMN_CODE);
+            if (product_code == null) {
+                throw new IllegalArgumentException("Item requires a product code");
+            }
+        }
+
+        // If price is updated, new value must be positive (if specified)
+        if (values.containsKey(InventoryEntry.COLUMN_PRICE)) {
+            Integer price = values.getAsInteger(InventoryEntry.COLUMN_PRICE);
+            if (price != null && price < 0) {
+                throw new IllegalArgumentException("Item requires valid price");
+            }
+        }
+
+        // If quantity in stock is updated, new value must be positive (if specified)
+        if (values.containsKey(InventoryEntry.COLUMN_QUANTITY)) {
+            Integer quantity = values.getAsInteger(InventoryEntry.COLUMN_QUANTITY);
+            if (quantity != null && quantity < 0) {
+                throw new IllegalArgumentException("Item requires valid quantity");
+            }
+        }
+
+        // If number of items ordered is updated, new value must be positive (if specified)
+        if (values.containsKey(InventoryEntry.COLUMN_IMPENDING_ORDERS)) {
+            Integer impending_orders = values.getAsInteger(InventoryEntry.COLUMN_IMPENDING_ORDERS);
+            if (impending_orders != null && impending_orders < 0) {
+                throw new IllegalArgumentException("Number of items ordered is invalid");
+            }
+        }
 
         int rowsUpdated = 0;
 

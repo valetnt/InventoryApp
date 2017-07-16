@@ -20,6 +20,8 @@ import android.widget.Toast;
 
 import com.example.android.inventoryapp.data.InventoryContract.InventoryEntry;
 
+import static com.example.android.inventoryapp.R.id.impending_orders;
+
 public class EditorActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -64,14 +66,12 @@ public class EditorActivity extends AppCompatActivity
         data.moveToFirst();
         String name = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_NAME));
         String code = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_CODE));
-        int price = data.getInt(data.getColumnIndex(InventoryEntry.COLUMN_PRICE));
-        String stringPrice = String.valueOf(price);
-        int quantity = data.getInt(data.getColumnIndex(InventoryEntry.COLUMN_QUANTITY));
-        String stringQuantity = String.valueOf(quantity);
+        String stringPrice = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_PRICE));
+        String stringQuantity = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_QUANTITY));
         String supplier = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_SUPPLIER_NAME));
         String email = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_SUPPLIER_MAIL));
-        int impendingOrders = data.getInt(data.getColumnIndex(InventoryEntry.COLUMN_IMPENDING_ORDERS));
-        String stringImpendingOrders = String.valueOf(impendingOrders);
+        String stringImpendingOrders =
+                data.getString(data.getColumnIndex(InventoryEntry.COLUMN_IMPENDING_ORDERS));
 
         mNameEditText.setText(name);
         mCodeEditText.setText(code);
@@ -212,38 +212,24 @@ public class EditorActivity extends AppCompatActivity
 
         String item_name = mNameEditText.getText().toString().trim();
         String item_code = mCodeEditText.getText().toString().trim();
-        int item_price = Integer.parseInt(mPriceEditText.getText().toString());
+        String item_price = mPriceEditText.getText().toString().trim();
+        String quantity = mQuantityText.getText().toString().trim();
         String supplier_name = mSupplierEditText.getText().toString().trim();
         String supplier_email = mSupplierEMailEditText.getText().toString().trim();
-        int quantity;
-        int impending_orders;
+        String impending_orders = mImpendingOrdersText.getText().toString().trim();
 
+        // If name field is empty, warn user and return early
         if (TextUtils.isEmpty(item_name)) {
             Toast.makeText(this, "Field NAME cannot be empty!",
                     Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // If product code field is empty, warn user and return early
         if (TextUtils.isEmpty(item_code)) {
             Toast.makeText(this, "Field PRODUCT_CODE cannot be empty!",
                     Toast.LENGTH_SHORT).show();
             return;
-        }
-
-        if (TextUtils.isEmpty(mQuantityText.getText())) {
-            Toast.makeText(this, "Field QUANTITY_IN_STOCK cannot be empty!",
-                    Toast.LENGTH_SHORT).show();
-            return;
-        } else {
-            quantity = Integer.parseInt(mQuantityText.getText().toString());
-        }
-
-        if (TextUtils.isEmpty(mImpendingOrdersText.getText())) {
-            Toast.makeText(this, "Field IMPENDING_ORDERS cannot be empty!",
-                    Toast.LENGTH_SHORT).show();
-            return;
-        } else {
-            impending_orders = Integer.parseInt(mImpendingOrdersText.getText().toString());
         }
 
         ContentResolver contentResolver = getContentResolver();
