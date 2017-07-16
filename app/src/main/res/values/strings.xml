@@ -95,4 +95,8 @@
     <!-- Toast message notifying the user that inserting new item into the database has failed -->
     <string name="update_failed">Error with saving changes</string>
 
+    <!-- Toast message notifying the user that item product code is a duplicate -->
+    <string name="duplicate_item">Another item with the same product code already exists in this
+        database</string>
+
 </resources>

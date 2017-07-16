@@ -11,8 +11,8 @@
         android:theme="@style/AppTheme">
 
         <provider
-            android:authorities="com.example.android.inventoryapp"
             android:name=".data.InventoryProvider"
+            android:authorities="com.example.android.inventoryapp"
             android:exported="false"/>
 
         <activity android:name=".CatalogActivity"
@@ -25,9 +25,10 @@
         </activity>
 
         <activity android:name=".EditorActivity"
-            android:parentActivityName=".CatalogActivity"
             android:label="@string/editor_activity_name"
-            android:theme="@style/EditorTheme">
+            android:parentActivityName=".CatalogActivity"
+            android:theme="@style/EditorTheme"
+            android:windowSoftInputMode="stateHidden">
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

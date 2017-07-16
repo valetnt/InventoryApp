@@ -20,12 +20,12 @@ import android.widget.Toast;
 
 import com.example.android.inventoryapp.data.InventoryContract.InventoryEntry;
 
-import static com.example.android.inventoryapp.R.id.impending_orders;
 
 public class EditorActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    public static final int EDITOR_LOADER = 1;
+    public static final int EDITOR_MODE_LOADER = 1;
+    public static final int INSERT_MODE_LOADER = 2;
 
     private EditText mNameEditText;
     private EditText mCodeEditText;
@@ -44,15 +44,27 @@ public class EditorActivity extends AppCompatActivity
      */
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        // Retrieve all fields for the current item
-        String[] projection = new String[]{InventoryEntry._ID, InventoryEntry.COLUMN_NAME,
-                InventoryEntry.COLUMN_CODE, InventoryEntry.COLUMN_PRICE,
-                InventoryEntry.COLUMN_QUANTITY, InventoryEntry.COLUMN_PICTURE,
-                InventoryEntry.COLUMN_SUPPLIER_NAME, InventoryEntry.COLUMN_SUPPLIER_MAIL,
-                InventoryEntry.COLUMN_IMPENDING_ORDERS};
 
-        // Query database for the Uri mCurrentUri
-        return new CursorLoader(this, mCurrentUri, projection, null, null, null);
+        if (id == EDITOR_MODE_LOADER) {
+
+            // Retrieve all fields for the current item
+            String[] projection = new String[]{InventoryEntry._ID, InventoryEntry.COLUMN_NAME,
+                    InventoryEntry.COLUMN_CODE, InventoryEntry.COLUMN_PRICE,
+                    InventoryEntry.COLUMN_QUANTITY, InventoryEntry.COLUMN_PICTURE,
+                    InventoryEntry.COLUMN_SUPPLIER_NAME, InventoryEntry.COLUMN_SUPPLIER_MAIL,
+                    InventoryEntry.COLUMN_IMPENDING_ORDERS};
+
+            return new CursorLoader(this, mCurrentUri, projection, null, null, null);
+
+        } else if (id == INSERT_MODE_LOADER) {
+
+            // Retrieve all product codes already present in the database
+            String[] projection = new String[]{InventoryEntry.COLUMN_CODE};
+
+            return new CursorLoader(this, InventoryEntry.CONTENT_URI, projection, null, null, null);
+        }
+
+        return null;
     }
 
     @Override
@@ -64,50 +76,82 @@ public class EditorActivity extends AppCompatActivity
         }
 
         data.moveToFirst();
-        String name = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_NAME));
-        String code = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_CODE));
-        String stringPrice = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_PRICE));
-        String stringQuantity = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_QUANTITY));
-        String supplier = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_SUPPLIER_NAME));
-        String email = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_SUPPLIER_MAIL));
-        String stringImpendingOrders =
-                data.getString(data.getColumnIndex(InventoryEntry.COLUMN_IMPENDING_ORDERS));
 
-        mNameEditText.setText(name);
-        mCodeEditText.setText(code);
-        if (TextUtils.isEmpty(stringPrice)) {
-            mPriceEditText.setText(getString(R.string.unknown));
-        } else {
+        if (loader.getId() == EDITOR_MODE_LOADER) {
+
+            String name = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_NAME));
+            String code = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_CODE));
+            String stringPrice = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_PRICE));
+            String stringQuantity = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_QUANTITY));
+            String supplier = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_SUPPLIER_NAME));
+            String email = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_SUPPLIER_MAIL));
+            String stringImpendingOrders =
+                    data.getString(data.getColumnIndex(InventoryEntry.COLUMN_IMPENDING_ORDERS));
+
+            mNameEditText.setText(name);
+            mCodeEditText.setText(code);
             mPriceEditText.setText(stringPrice);
-        }
-        mQuantityText.setText(stringQuantity);
-        if (TextUtils.isEmpty(supplier)) {
-            mSupplierEditText.setText(getString(R.string.unknown));
-        } else {
+            mQuantityText.setText(stringQuantity);
             mSupplierEditText.setText(supplier);
-        }
-        if (TextUtils.isEmpty(email)) {
-            mSupplierEMailEditText.setText(getString(R.string.unknown));
-        } else {
             mSupplierEMailEditText.setText(email);
-        }
-        if (TextUtils.isEmpty(stringImpendingOrders)) {
-            mImpendingOrdersText.setText(getString(R.string.unknown));
-        } else {
             mImpendingOrdersText.setText(stringImpendingOrders);
+
+        } else if (loader.getId() == INSERT_MODE_LOADER) {
+
+            while (!data.isAfterLast()) {
+                String code = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_CODE));
+                if ((code.toLowerCase()).equals
+                        (mCodeEditText.getText().toString().trim().toLowerCase())) {
+                    // Item is a duplicate, so it must not be saved into the database!
+                    // Break the loop and display a warning message to the user.
+                    Toast.makeText(this, getString(R.string.duplicate_item),
+                            Toast.LENGTH_SHORT).show();
+                    break;
+                }
+                data.moveToNext();
+            }
+
+            if (data.isAfterLast()) {
+                // If we have reached the last index without having encountered any duplicates
+                // of the product code field, then the new item can be inserted into the database.
+
+                // Check also the other fields
+                ContentValues values = checkContentValuesToSave();
+                if (values != null) {
+                    // Insert new item into the database
+                    ContentResolver contentResolver = getContentResolver();
+                    Uri newUri = contentResolver.insert(InventoryEntry.CONTENT_URI, values);
+                    // Show a toast message depending on whether or not the insertion was successful
+                    if (newUri == null) {
+                        // If the new content URI is null, then there was an error with insertion.
+                        Toast.makeText(this, getString(R.string.insert_failed),
+                                Toast.LENGTH_SHORT).show();
+                    } else {
+                        // Otherwise, the insertion was successful and we can display a toast.
+                        Toast.makeText(this, getString(R.string.insert_successful),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                    finish();
+                }
+            }
         }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        // Clear all data fields
-        mNameEditText.setText("");
-        mCodeEditText.setText("");
-        mQuantityText.setText("");
-        mPriceEditText.setText("");
-        mSupplierEditText.setText("");
-        mSupplierEMailEditText.setText("");
-        mImpendingOrdersText.setText("");
+
+        if (loader.getId() == EDITOR_MODE_LOADER) {
+
+            // Clear all data fields
+            mNameEditText.setText("");
+            mCodeEditText.setText("");
+            mQuantityText.setText("");
+            mPriceEditText.setText("");
+            mSupplierEditText.setText("");
+            mSupplierEMailEditText.setText("");
+            mImpendingOrdersText.setText("");
+
+        }
     }
 
     @Override
@@ -173,7 +217,7 @@ public class EditorActivity extends AppCompatActivity
 
             // Retrieve item data via cursor loader
             LoaderManager loaderManager = getSupportLoaderManager();
-            loaderManager.initLoader(EDITOR_LOADER, null, this);
+            loaderManager.initLoader(EDITOR_MODE_LOADER, null, this);
         }
     }
 
@@ -210,6 +254,39 @@ public class EditorActivity extends AppCompatActivity
 
     private void saveItem() {
 
+        ContentValues values = checkContentValuesToSave();
+        if (values != null) {
+
+            if (mCurrentUri == null) {
+
+                // Before saving the new item into the database, we must first check that its
+                // product code has not been already used (i.e. that the item is not a duplicate).
+                // Query database for product code via a cursor loader.
+                // Perform this check in onLoadFinished()
+                LoaderManager loaderManager = getSupportLoaderManager();
+                loaderManager.initLoader(INSERT_MODE_LOADER, null, this);
+
+            } else {
+
+                // Update item
+                ContentResolver contentResolver = getContentResolver();
+                int rowUpdated = contentResolver.update(mCurrentUri, values, null, null);
+                // Show a toast message depending on whether or not the updating was successful
+                if (rowUpdated == 1) {
+                    Toast.makeText(this, getString(R.string.update_successful),
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, getString(R.string.update_failed),
+                            Toast.LENGTH_SHORT).show();
+                }
+
+                finish();
+            }
+        }
+    }
+
+    private ContentValues checkContentValuesToSave() {
+
         String item_name = mNameEditText.getText().toString().trim();
         String item_code = mCodeEditText.getText().toString().trim();
         String item_price = mPriceEditText.getText().toString().trim();
@@ -222,17 +299,15 @@ public class EditorActivity extends AppCompatActivity
         if (TextUtils.isEmpty(item_name)) {
             Toast.makeText(this, "Field NAME cannot be empty!",
                     Toast.LENGTH_SHORT).show();
-            return;
+            return null;
         }
 
         // If product code field is empty, warn user and return early
         if (TextUtils.isEmpty(item_code)) {
             Toast.makeText(this, "Field PRODUCT_CODE cannot be empty!",
                     Toast.LENGTH_SHORT).show();
-            return;
+            return null;
         }
-
-        ContentResolver contentResolver = getContentResolver();
 
         ContentValues values = new ContentValues();
         values.put(InventoryEntry.COLUMN_NAME, item_name);
@@ -243,34 +318,6 @@ public class EditorActivity extends AppCompatActivity
         values.put(InventoryEntry.COLUMN_SUPPLIER_MAIL, supplier_email);
         values.put(InventoryEntry.COLUMN_IMPENDING_ORDERS, impending_orders);
 
-        if (mCurrentUri == null) {
-
-            // Save new item into the database
-            Uri newUri = contentResolver.insert(InventoryEntry.CONTENT_URI, values);
-            // Show a toast message depending on whether or not the insertion was successful
-            if (newUri == null) {
-                // If the new content URI is null, then there was an error with insertion.
-                Toast.makeText(this, getString(R.string.insert_failed),
-                        Toast.LENGTH_SHORT).show();
-            } else {
-                // Otherwise, the insertion was successful and we can display a toast.
-                Toast.makeText(this, getString(R.string.insert_successful),
-                        Toast.LENGTH_SHORT).show();
-            }
-
-        } else {
-
-            // Update item
-            int rowUpdated = contentResolver.update(mCurrentUri, values, null, null);
-            // Show a toast message depending on whether or not the updating was successful
-            if (rowUpdated == 1) {
-                Toast.makeText(this, getString(R.string.update_successful),
-                        Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, getString(R.string.update_failed),
-                        Toast.LENGTH_SHORT).show();
-            }
-        }
-        finish();
+        return values;
     }
 }
