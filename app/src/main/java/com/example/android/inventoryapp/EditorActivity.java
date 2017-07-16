@@ -10,6 +10,7 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,7 +27,7 @@ public class EditorActivity extends AppCompatActivity
 
     public static final int EDITOR_MODE_LOADER = 1;
     public static final int INSERT_MODE_LOADER = 2;
-
+    private static final String LOG_TAG = EditorActivity.class.getSimpleName();
     private EditText mNameEditText;
     private EditText mCodeEditText;
     private EditText mPriceEditText;
@@ -70,14 +71,14 @@ public class EditorActivity extends AppCompatActivity
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
-        // Bail early if the cursor is null or there is less than 1 row in the cursor
-        if (data == null || data.getCount() < 1) {
-            return;
-        }
-
-        data.moveToFirst();
-
         if (loader.getId() == EDITOR_MODE_LOADER) {
+
+            // Bail early if the cursor is null or there is less than 1 row in the cursor
+            if (data == null || data.getCount() < 1) {
+                return;
+            }
+
+            data.moveToFirst();
 
             String name = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_NAME));
             String code = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_CODE));
@@ -98,29 +99,35 @@ public class EditorActivity extends AppCompatActivity
 
         } else if (loader.getId() == INSERT_MODE_LOADER) {
 
-            while (!data.isAfterLast()) {
-                String code = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_CODE));
-                if ((code.toLowerCase()).equals
-                        (mCodeEditText.getText().toString().trim().toLowerCase())) {
-                    // Item is a duplicate, so it must not be saved into the database!
-                    // Break the loop and display a warning message to the user.
-                    Toast.makeText(this, getString(R.string.duplicate_item),
-                            Toast.LENGTH_SHORT).show();
-                    break;
+            if (data != null && data.getCount() > 0) {
+
+                data.moveToFirst();
+                while (!data.isAfterLast()) {
+                    String code = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_CODE));
+                    if ((code.toLowerCase()).equals
+                            (mCodeEditText.getText().toString().trim().toLowerCase())) {
+                        // If item is a duplicate, it must not be saved into the database!
+                        // Break the loop and display a warning message to the user.
+                        Toast.makeText(this, getString(R.string.duplicate_item),
+                                Toast.LENGTH_SHORT).show();
+                        break;
+                    }
+                    data.moveToNext();
                 }
-                data.moveToNext();
             }
 
-            if (data.isAfterLast()) {
+            if (data == null || data.getCount() == 0
+                    || (data.getCount() > 0 && data.isAfterLast())) {
                 // If we have reached the last index without having encountered any duplicates
                 // of the product code field, then the new item can be inserted into the database.
 
-                // Check also the other fields
                 ContentValues values = checkContentValuesToSave();
                 if (values != null) {
+
                     // Insert new item into the database
                     ContentResolver contentResolver = getContentResolver();
                     Uri newUri = contentResolver.insert(InventoryEntry.CONTENT_URI, values);
+
                     // Show a toast message depending on whether or not the insertion was successful
                     if (newUri == null) {
                         // If the new content URI is null, then there was an error with insertion.
@@ -131,7 +138,10 @@ public class EditorActivity extends AppCompatActivity
                         Toast.makeText(this, getString(R.string.insert_successful),
                                 Toast.LENGTH_SHORT).show();
                     }
+                    // Terminate the activity
                     finish();
+                    // Destroy the loader
+                    getSupportLoaderManager().destroyLoader(INSERT_MODE_LOADER);
                 }
             }
         }
@@ -215,6 +225,11 @@ public class EditorActivity extends AppCompatActivity
             buttonAddPhoto.setVisibility(View.GONE);
             buttonOrder.setVisibility(View.VISIBLE);
 
+            // Product code cannot be edited. If the user has inserted an item with
+            // the wrong product code, he cannot correct it, but instead he has to
+            // delete and then recreate the item.
+            mCodeEditText.setEnabled(false);
+
             // Retrieve item data via cursor loader
             LoaderManager loaderManager = getSupportLoaderManager();
             loaderManager.initLoader(EDITOR_MODE_LOADER, null, this);
@@ -247,6 +262,10 @@ public class EditorActivity extends AppCompatActivity
             case R.id.action_save:
                 saveItem();
                 return true;
+
+            case R.id.action_delete:
+                deleteItem();
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -254,23 +273,24 @@ public class EditorActivity extends AppCompatActivity
 
     private void saveItem() {
 
-        ContentValues values = checkContentValuesToSave();
-        if (values != null) {
+        if (mCurrentUri == null) {
 
-            if (mCurrentUri == null) {
+            // Before saving the new item into the database, we must first check that its
+            // product code has not been already used (i.e. that the item is not a duplicate).
+            // Query database for product code via a cursor loader.
+            // Perform this check in onLoadFinished()
+            LoaderManager loaderManager = getSupportLoaderManager();
+            loaderManager.initLoader(INSERT_MODE_LOADER, null, this);
 
-                // Before saving the new item into the database, we must first check that its
-                // product code has not been already used (i.e. that the item is not a duplicate).
-                // Query database for product code via a cursor loader.
-                // Perform this check in onLoadFinished()
-                LoaderManager loaderManager = getSupportLoaderManager();
-                loaderManager.initLoader(INSERT_MODE_LOADER, null, this);
+        } else {
 
-            } else {
+            ContentValues values = checkContentValuesToSave();
+            if (values != null) {
 
                 // Update item
                 ContentResolver contentResolver = getContentResolver();
                 int rowUpdated = contentResolver.update(mCurrentUri, values, null, null);
+
                 // Show a toast message depending on whether or not the updating was successful
                 if (rowUpdated == 1) {
                     Toast.makeText(this, getString(R.string.update_successful),
@@ -319,5 +339,25 @@ public class EditorActivity extends AppCompatActivity
         values.put(InventoryEntry.COLUMN_IMPENDING_ORDERS, impending_orders);
 
         return values;
+    }
+
+    private void deleteItem() {
+
+        if (mCurrentUri != null) { // If we are in editor mode
+
+            ContentResolver contentResolver = getContentResolver();
+            int rowDeleted = contentResolver.delete(mCurrentUri, null, null);
+
+            // Show a toast message depending on whether or not deleting was successful
+            if (rowDeleted == 1) {
+                Toast.makeText(this, getString(R.string.delete_successful),
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, getString(R.string.delete_failed),
+                        Toast.LENGTH_SHORT).show();
+            }
+
+            finish();
+        }
     }
 }
