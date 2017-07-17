@@ -5,24 +5,8 @@
     android:baselineAligned="false"
     android:orientation="horizontal">
 
-    <FrameLayout
-        android:id="@+id/button_edit"
-        android:layout_width="@dimen/icon_touch_target_size"
-        android:layout_height="@dimen/icon_touch_target_size"
-        android:layout_gravity="center_vertical"
-        android:layout_marginEnd="@dimen/item_smaller_margin"
-        android:layout_marginRight="@dimen/item_smaller_margin">
-
-        <ImageView
-            android:layout_width="@dimen/icon_size"
-            android:layout_height="@dimen/icon_size"
-            android:layout_gravity="center"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_edit" />
-
-    </FrameLayout>
-
     <LinearLayout
+        android:id="@+id/button_edit"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/item_smaller_margin"
@@ -108,13 +92,13 @@
 
     </LinearLayout>
 
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/button_sell"
-        android:layout_width="@dimen/icon_touch_target_size"
-        android:layout_height="@dimen/icon_touch_target_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_marginEnd="@dimen/item_smaller_margin"
-        android:layout_marginRight="@dimen/item_smaller_margin">
+        android:minHeight="@dimen/button_touch_target_height"
+        android:orientation="vertical">
 
         <ImageView
             android:layout_width="@dimen/icon_size"
@@ -123,6 +107,13 @@
             android:scaleType="centerInside"
             android:src="@drawable/ic_monetize" />
 
-    </FrameLayout>
+        <TextView
+            style="@style/SellButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/label_item_sell" />
+
+    </LinearLayout>
 
 </LinearLayout>

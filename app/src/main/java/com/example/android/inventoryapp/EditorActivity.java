@@ -2,6 +2,7 @@ package com.example.android.inventoryapp;
 
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -34,6 +35,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static android.R.attr.name;
+
 /*
  * This code contains a short excerpt adapted from
  * https://github.com/crlsndrsjmnz/MyShareImageExample/blob/master/app/src/main/java/co/carlosandresjimenez/android/myshareimageexample/MainActivity.java
@@ -47,6 +50,13 @@ public class EditorActivity extends AppCompatActivity
     public static final int INSERT_MODE_LOADER = 2;
     private static final int PICK_IMAGE_REQUEST = 0;
     private static final String LOG_TAG = EditorActivity.class.getSimpleName();
+    /*
+    // Constant values for storing key-value pairs to support device rotation
+    private static final String QUANTITY = "number of items in stock";
+    private static final String BOOLEAN_IMAGE_CHANGED = "true only if image has changed";
+    private static final String BOOLEAN_IMAGE_DELETED = "true only if image has been deleted";
+    private static final String BOOLEAN_DATA_CHANGED = "true only if UI changes detected";
+    */
     private EditText mNameEditText;
     private EditText mCodeEditText;
     private EditText mPriceEditText;
@@ -59,10 +69,10 @@ public class EditorActivity extends AppCompatActivity
     private boolean mImageHasChanged = false;
     private boolean mImageHasBeenDeleted = false;
     private boolean mDataHasChanged = false;
-
     // Uri of the item we want to edit in edit mode
     private Uri mCurrentUri;
-
+    //private static final String WIDTH = "width of the ImageView";
+    //private static final String HEIGHT = "height of the ImageView";
     /**
      * Implementation of OnTouchListener interface to detect changes of editable fields
      */
@@ -149,12 +159,13 @@ public class EditorActivity extends AppCompatActivity
                                 builder.setPositiveButton(R.string.confirm_image_deletion, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
                                         // User clicked the "Delete" button, so delete the image.
-                                        // Set the picture URI as null, which is equivalent to
-                                        // having no image. The updating of the database will take
-                                        // place only if the user saves changes.
-                                        mPictureUri = null;
+                                        // Update database immediately.
                                         mImageHasChanged = true;
                                         mImageHasBeenDeleted = true;
+                                        ContentResolver contentResolver = getContentResolver();
+                                        ContentValues values = new ContentValues();
+                                        values.put(InventoryEntry.COLUMN_PICTURE_URI, "");
+                                        contentResolver.update(mCurrentUri, values, null, null);
                                     }
                                 });
                                 builder.setNegativeButton(R.string.cancel_image_deletion, new DialogInterface.OnClickListener() {
@@ -266,7 +277,7 @@ public class EditorActivity extends AppCompatActivity
         mPicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Select an image.
+                // Select an image from the file system
                 openImageSelector();
             }
         });
@@ -344,6 +355,28 @@ public class EditorActivity extends AppCompatActivity
                 }
             });
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        /*
+        outState.putInt(QUANTITY, Integer.parseInt(mQuantityText.getText().toString()));
+        outState.putBoolean(BOOLEAN_DATA_CHANGED, mDataHasChanged);
+        outState.putBoolean(BOOLEAN_IMAGE_CHANGED, mImageHasChanged);
+        outState.putBoolean(BOOLEAN_IMAGE_DELETED, mImageHasBeenDeleted);
+        */
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        /*
+        mQuantityText.setText(String.valueOf(savedInstanceState.getInt(QUANTITY)));
+        mDataHasChanged = savedInstanceState.getBoolean(BOOLEAN_DATA_CHANGED);
+        mImageHasChanged = savedInstanceState.getBoolean(BOOLEAN_IMAGE_CHANGED);
+        mImageHasBeenDeleted = savedInstanceState.getBoolean(BOOLEAN_IMAGE_DELETED);
+        */
     }
 
     @Override
@@ -618,8 +651,9 @@ public class EditorActivity extends AppCompatActivity
             return null;
 
         // Get the dimensions of the ImageView
-        int targetW = mPicture.getWidth();
-        int targetH = mPicture.getHeight();
+        // This will be useful to properly resize the bitmap image
+        int width = mPicture.getWidth();
+        int height = mPicture.getHeight();
 
         InputStream input = null;
         try {
@@ -632,7 +666,7 @@ public class EditorActivity extends AppCompatActivity
             int photoH = bmOptions.outHeight;
 
             // Determine how much to scale down the image
-            int scaleFactor = Math.min(photoW / targetW, photoH / targetH);
+            int scaleFactor = Math.min(photoW / width, photoH / height);
 
             // Decode the image file into a Bitmap sized to fill the View
             bmOptions.inJustDecodeBounds = false;

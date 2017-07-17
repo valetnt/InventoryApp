@@ -29,11 +29,15 @@
     <!-- Text hint for "quantity-in-stock" field in the editor [CHAR LIMIT=30] -->
     <string name="hint_item_quantity_in_stock">Quantity in stock</string>
 
-    <!-- Label for button to add photo in the editor -->
-    <string name="label_add_picture">Add Photo</string>
+    <!-- Label for button to sell item -->
+    <string name="label_item_sell">Sell</string>
 
-    <!-- Label for button to change photo in the editor -->
-    <string name="label_change_picture">Change Photo</string>
+    <!-- Toast message that says that one item has been sold -->
+    <string name="label_item_sold_part1">One</string>
+    <string name="label_item_sold_part2">has been sold.</string>
+
+    <!-- Toast message that says that selling of the item has failed -->
+    <string name="label_item_selling_failed">Cannot sell this item</string>
 
     <!-- Text hint for "supplier-name" field in the editor [CHAR LIMIT=30] -->
     <string name="hint_item_supplier_name">Supplier</string>

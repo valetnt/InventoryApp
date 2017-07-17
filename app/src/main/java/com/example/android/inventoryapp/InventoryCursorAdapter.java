@@ -68,7 +68,7 @@ public class InventoryCursorAdapter extends CursorAdapter {
 
         TextView currencySymbol = (TextView) view.findViewById(R.id.currency_symbol);
 
-        String currentName = cursor.getString(cursor.getColumnIndex(InventoryEntry.COLUMN_NAME));
+        final String currentName = cursor.getString(cursor.getColumnIndex(InventoryEntry.COLUMN_NAME));
         String currentProductCode = cursor.getString(cursor.getColumnIndex(
                 InventoryEntry.COLUMN_CODE));
         String currentQuantity = String.valueOf(cursor.getInt(cursor.getColumnIndex(
@@ -122,11 +122,13 @@ public class InventoryCursorAdapter extends CursorAdapter {
                     // Show a toast message depending on whether or not the updating was successful
                     if (rowUpdated == 1) {
                         Toast.makeText(v.getContext(),
-                                v.getContext().getString(R.string.update_successful),
+                                v.getContext().getString(R.string.label_item_sold_part1)
+                                        + " " + currentName + " " +
+                                        v.getContext().getString(R.string.label_item_sold_part2),
                                 Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(v.getContext(),
-                                v.getContext().getString(R.string.update_failed),
+                                v.getContext().getString(R.string.label_item_selling_failed),
                                 Toast.LENGTH_SHORT).show();
                     }
 
