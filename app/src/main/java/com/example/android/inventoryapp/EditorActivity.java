@@ -11,6 +11,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.app.NavUtils;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
@@ -20,6 +21,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -50,9 +52,21 @@ public class EditorActivity extends AppCompatActivity
     private ImageView mPicture;
     private Uri mPictureUri;
     private boolean mImageHasChanged = false;
+    private boolean mDataHasChanged = false;
 
     // Uri of the item we want to edit in edit mode
     private Uri mCurrentUri;
+
+    /**
+     * Implementation of OnTouchListener interface to detect changes of editable fields
+     */
+    private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            mDataHasChanged = true;
+            return false;
+        }
+    };
 
     /**
      * Implementation of the {@link LoaderManager.LoaderCallbacks} interface.
@@ -126,23 +140,17 @@ public class EditorActivity extends AppCompatActivity
                             public boolean onLongClick(View v) {
                                 final AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
                                 builder.setMessage(R.string.delete_image_dialog_msg);
-                                builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+                                builder.setPositiveButton(R.string.confirm_image_deletion, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
                                         // User clicked the "Delete" button, so delete the image.
-                                        // Put an empty string as the picture URI, which is equivalent to no image
-                                        ContentResolver contentResolver = getContentResolver();
-                                        ContentValues contentValues = new ContentValues();
-                                        contentValues.put(InventoryEntry.COLUMN_PICTURE_URI, "");
-                                        int rowUpdated = contentResolver.update(mCurrentUri, contentValues, null,
-                                                null);
-                                        // Show a toast message if image has been successfully deleted
-                                        if (rowUpdated == 1) {
-                                            Toast.makeText(builder.getContext(), getString(R.string.image_deleted),
-                                                    Toast.LENGTH_SHORT).show();
-                                        }
+                                        // Set the picture URI as null, which is equivalent to
+                                        // having no image. The updating of the database will take
+                                        // place only if the user saves changes.
+                                        mPictureUri = null;
+                                        mImageHasChanged = true;
                                     }
                                 });
-                                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                builder.setNegativeButton(R.string.cancel_image_deletion, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
                                         // User clicked the "Cancel" button, so dismiss the dialog.
                                         if (dialog != null) {
@@ -256,9 +264,19 @@ public class EditorActivity extends AppCompatActivity
             }
         });
 
+        mNameEditText.setOnTouchListener(mTouchListener);
+        mCodeEditText.setOnTouchListener(mTouchListener);
+        mPriceEditText.setOnTouchListener(mTouchListener);
+        mSupplierEditText.setOnTouchListener(mTouchListener);
+        mSupplierEMailEditText.setOnTouchListener(mTouchListener);
+        mImpendingOrdersText.setOnTouchListener(mTouchListener);
+
         View buttonIncreaseQuantity = findViewById(R.id.button_increase_quantity);
         View buttonDecreaseQuantity = findViewById(R.id.button_decrease_quantity);
         View buttonOrder = findViewById(R.id.button_order);
+
+        buttonDecreaseQuantity.setOnTouchListener(mTouchListener);
+        buttonIncreaseQuantity.setOnTouchListener(mTouchListener);
 
         buttonIncreaseQuantity.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -322,14 +340,12 @@ public class EditorActivity extends AppCompatActivity
 
             if (resultData != null) {
                 mPictureUri = resultData.getData();
-                Log.i(LOG_TAG, "Uri: " + mPictureUri.toString());
 
                 // Update item picture in the UI.
                 // (Database will only be updated on clicking "Save" menu option)
                 try {
                     Bitmap bitmap = getBitmapFromUri(mPictureUri);
                     mPicture.setImageBitmap(bitmap);
-                    Log.i(LOG_TAG, "++++++++++++");
                     mImageHasChanged = true;
 
                 } catch (IOException e) {
@@ -361,19 +377,115 @@ public class EditorActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-
+            // Respond to a click on the "Save" menu option
             case R.id.action_save:
                 saveItem();
                 return true;
 
+            // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
-                deleteItem();
+                showDeleteConfirmationDialog();
+                return true;
+
+            // Respond to a click on the "Up" arrow button in the app bar
+            case android.R.id.home:
+                // If the data hasn't changed, continue with navigating up to parent activity
+                // which is the {@link CatalogActivity}.
+                if (!mDataHasChanged && !mImageHasChanged) {
+                    NavUtils.navigateUpFromSameTask(EditorActivity.this);
+                    return true;
+                }
+
+                // Otherwise if there are unsaved changes, setup a dialog to warn the user.
+                // Create a click listener to handle the user confirming that
+                // changes should be discarded.
+                DialogInterface.OnClickListener discardButtonClickListener =
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                // User clicked "Discard" button, navigate to parent activity.
+                                NavUtils.navigateUpFromSameTask(EditorActivity.this);
+                            }
+                        };
+
+                // Show a dialog that notifies the user they have unsaved changes
+                showUnsavedChangesDialog(discardButtonClickListener);
                 return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onBackPressed() {
+        // If the pet hasn't changed, continue with handling back button press
+        if (!mDataHasChanged && !mImageHasChanged) {
+            super.onBackPressed();
+            return;
+        }
+
+        // Otherwise if there are unsaved changes, setup a dialog to warn the user.
+        // Create a click listener to handle the user confirming that changes should be discarded.
+        DialogInterface.OnClickListener discardButtonClickListener =
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // User clicked "Discard" button, close the current activity.
+                        finish();
+                    }
+                };
+
+        // Show dialog that there are unsaved changes
+        showUnsavedChangesDialog(discardButtonClickListener);
+    }
+
+    private void showUnsavedChangesDialog(
+            DialogInterface.OnClickListener discardButtonClickListener) {
+        // Create an AlertDialog.Builder and set the message, and click listeners
+        // for the positive and negative buttons on the dialog.
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.unsaved_changes_dialog_msg);
+        builder.setPositiveButton(R.string.discard, discardButtonClickListener);
+        builder.setNegativeButton(R.string.keep_editing, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Keep editing" button, so dismiss the dialog
+                // and continue editing the current item.
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        // Create and show the AlertDialog
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    private void showDeleteConfirmationDialog() {
+        // Create an AlertDialog.Builder and set the message, and click listeners
+        // for the positive and negative buttons on the dialog.
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.delete_dialog_msg);
+        builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Delete" button, so delete the current item.
+                deleteItem();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Cancel" button, so dismiss the dialog
+                // and continue editing the current item.
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        // Create and show the AlertDialog
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
 
     private void saveItem() {
 
@@ -442,9 +554,7 @@ public class EditorActivity extends AppCompatActivity
         values.put(InventoryEntry.COLUMN_CODE, item_code);
         values.put(InventoryEntry.COLUMN_PRICE, item_price);
         values.put(InventoryEntry.COLUMN_QUANTITY, quantity);
-        if (mImageHasChanged) { // If image has not changed, do not try to update database
-            values.put(InventoryEntry.COLUMN_PICTURE_URI, pictureUri);
-        }
+        values.put(InventoryEntry.COLUMN_PICTURE_URI, pictureUri);
         values.put(InventoryEntry.COLUMN_SUPPLIER_NAME, supplier_name);
         values.put(InventoryEntry.COLUMN_SUPPLIER_MAIL, supplier_email);
         values.put(InventoryEntry.COLUMN_IMPENDING_ORDERS, impending_orders);
