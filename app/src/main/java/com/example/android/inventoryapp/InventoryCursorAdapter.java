@@ -8,12 +8,10 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v4.widget.CursorAdapter;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,7 +21,6 @@ import com.example.android.inventoryapp.data.InventoryContract.InventoryEntry;
 public class InventoryCursorAdapter extends CursorAdapter {
 
     private static final String LOG_TAG = InventoryCursorAdapter.class.getSimpleName();
-    private TextView mQuantityTextView;
 
     /**
      * Constructs a new {@link InventoryCursorAdapter}
@@ -61,10 +58,13 @@ public class InventoryCursorAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
 
+        int currentRowId = cursor.getInt(cursor.getColumnIndex(InventoryEntry._ID));
+        final Uri currentUri = ContentUris.withAppendedId(InventoryEntry.CONTENT_URI, currentRowId);
+
         TextView nameTextView = (TextView) view.findViewById(R.id.item_name);
         TextView productCodeTextView = (TextView) view.findViewById(R.id.item_product_code);
         TextView priceTextView = (TextView) view.findViewById(R.id.item_price);
-        mQuantityTextView = (TextView) view.findViewById(R.id.item_quantity_in_stock);
+        final TextView quantityTextView = (TextView) view.findViewById(R.id.item_quantity_in_stock);
 
         TextView currencySymbol = (TextView) view.findViewById(R.id.currency_symbol);
 
@@ -76,7 +76,7 @@ public class InventoryCursorAdapter extends CursorAdapter {
 
         nameTextView.setText(currentName);
         productCodeTextView.setText(currentProductCode);
-        mQuantityTextView.setText(currentQuantity);
+        quantityTextView.setText(currentQuantity);
 
         String currentPrice = view.getContext().getString(R.string.unknown);
         currencySymbol.setVisibility(View.GONE);
@@ -84,7 +84,8 @@ public class InventoryCursorAdapter extends CursorAdapter {
         if (dataTypeOfCurrentPrice == Cursor.FIELD_TYPE_INTEGER) {
             // If field is not null, convert the price in cents (integer) into
             // a price in dollars (decimal)
-            double priceInDollars = cursor.getInt(cursor.getColumnIndex(InventoryEntry.COLUMN_PRICE)) / 100.;
+            double priceInDollars = cursor.getInt(cursor.getColumnIndex(InventoryEntry.COLUMN_PRICE))
+                    / 100.;
             currentPrice = String.valueOf(priceInDollars);
             currencySymbol.setVisibility(View.VISIBLE);
         }
@@ -94,14 +95,11 @@ public class InventoryCursorAdapter extends CursorAdapter {
         View buttonEdit = view.findViewById(R.id.button_edit);
 
 
-        /*
-
-
         buttonEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent openEditor = new Intent(v.getContext(), EditorActivity.class);
-                openEditor.setData(ContentUris.withAppendedId(InventoryEntry.CONTENT_URI, ));
+                openEditor.setData(currentUri);
                 v.getContext().startActivity(openEditor);
             }
         });
@@ -110,21 +108,15 @@ public class InventoryCursorAdapter extends CursorAdapter {
         buttonSell.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int quantity = Integer.parseInt(mQuantityTextView.getText().toString());
+                int quantity = Integer.parseInt(quantityTextView.getText().toString());
                 if (quantity > 0) {
                     quantity--;
-                    mQuantityTextView.setText(String.valueOf(quantity));
+                    quantityTextView.setText(String.valueOf(quantity));
 
                     // Update item in database
                     ContentValues values = new ContentValues();
                     values.put(InventoryEntry.COLUMN_QUANTITY, quantity);
-
-
                     ContentResolver contentResolver = v.getContext().getContentResolver();
-                    Uri currentUri = ContentUris.withAppendedId(InventoryEntry.CONTENT_URI,);
-
-                    Log.i(LOG_TAG, "Updating URI " + currentUri);
-
                     int rowUpdated = contentResolver.update(currentUri, values, null, null);
 
                     // Show a toast message depending on whether or not the updating was successful
@@ -138,14 +130,9 @@ public class InventoryCursorAdapter extends CursorAdapter {
                                 Toast.LENGTH_SHORT).show();
                     }
 
-
                 }
             }
 
         });
-
-        */
-
     }
-
 }
