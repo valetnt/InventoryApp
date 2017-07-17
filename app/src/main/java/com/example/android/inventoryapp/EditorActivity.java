@@ -34,6 +34,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
+/*
+ * This code contains a short excerpt adapted from
+ * https://github.com/crlsndrsjmnz/MyShareImageExample/blob/master/app/src/main/java/co/carlosandresjimenez/android/myshareimageexample/MainActivity.java
+ * about how to load a bitmap image from a given URI.
+ */
 
 public class EditorActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -52,6 +57,7 @@ public class EditorActivity extends AppCompatActivity
     private ImageView mPicture;
     private Uri mPictureUri;
     private boolean mImageHasChanged = false;
+    private boolean mImageHasBeenDeleted = false;
     private boolean mDataHasChanged = false;
 
     // Uri of the item we want to edit in edit mode
@@ -148,6 +154,7 @@ public class EditorActivity extends AppCompatActivity
                                         // place only if the user saves changes.
                                         mPictureUri = null;
                                         mImageHasChanged = true;
+                                        mImageHasBeenDeleted = true;
                                     }
                                 });
                                 builder.setNegativeButton(R.string.cancel_image_deletion, new DialogInterface.OnClickListener() {
@@ -314,8 +321,6 @@ public class EditorActivity extends AppCompatActivity
             // If we are in edit-existing-item mode
             getSupportActionBar().setTitle(getString(R.string.editor_activity_title_edit_item));
 
-            buttonOrder.setVisibility(View.VISIBLE);
-
             // Product code cannot be edited. If the user has inserted an item with
             // the wrong product code, he cannot correct it, but instead he has to
             // delete and then recreate the item.
@@ -324,6 +329,20 @@ public class EditorActivity extends AppCompatActivity
             // Retrieve item data via cursor loader
             LoaderManager loaderManager = getSupportLoaderManager();
             loaderManager.initLoader(EDITOR_MODE_LOADER, null, this);
+
+            buttonOrder.setVisibility(View.VISIBLE);
+            buttonOrder.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Open e-mail client to write an e-mail to the supplier
+                    String supplierEmail = mSupplierEMailEditText.getText().toString();
+                    Intent sendEmailToSupplier = new Intent(Intent.ACTION_SENDTO,
+                            Uri.parse("mailto:" + supplierEmail));
+                    if (sendEmailToSupplier.resolveActivity(getPackageManager()) != null) {
+                        startActivity(sendEmailToSupplier);
+                    }
+                }
+            });
         }
     }
 
@@ -345,8 +364,10 @@ public class EditorActivity extends AppCompatActivity
                 // (Database will only be updated on clicking "Save" menu option)
                 try {
                     Bitmap bitmap = getBitmapFromUri(mPictureUri);
-                    mPicture.setImageBitmap(bitmap);
-                    mImageHasChanged = true;
+                    if (bitmap != null) {
+                        mPicture.setImageBitmap(bitmap);
+                        mImageHasChanged = true;
+                    }
 
                 } catch (IOException e) {
                     Log.e(LOG_TAG, "Problem retrieving the image. ", e);
@@ -527,10 +548,6 @@ public class EditorActivity extends AppCompatActivity
         String item_code = mCodeEditText.getText().toString().trim();
         String item_price = mPriceEditText.getText().toString().trim();
         String quantity = mQuantityText.getText().toString().trim();
-        String pictureUri = null;
-        if (mPictureUri != null) {
-            pictureUri = mPictureUri.toString();
-        }
         String supplier_name = mSupplierEditText.getText().toString().trim();
         String supplier_email = mSupplierEMailEditText.getText().toString().trim();
         String impending_orders = mImpendingOrdersText.getText().toString().trim();
@@ -554,10 +571,19 @@ public class EditorActivity extends AppCompatActivity
         values.put(InventoryEntry.COLUMN_CODE, item_code);
         values.put(InventoryEntry.COLUMN_PRICE, item_price);
         values.put(InventoryEntry.COLUMN_QUANTITY, quantity);
-        values.put(InventoryEntry.COLUMN_PICTURE_URI, pictureUri);
         values.put(InventoryEntry.COLUMN_SUPPLIER_NAME, supplier_name);
         values.put(InventoryEntry.COLUMN_SUPPLIER_MAIL, supplier_email);
         values.put(InventoryEntry.COLUMN_IMPENDING_ORDERS, impending_orders);
+
+        if (mPictureUri != null) {
+            String pictureUri = mPictureUri.toString();
+            values.put(InventoryEntry.COLUMN_PICTURE_URI, pictureUri);
+
+        } else if (mImageHasBeenDeleted) {
+            // It makes sense to update the database by setting the image to "no image"
+            // ONLY IF the user has explicitly chosen to delete the image.
+            values.put(InventoryEntry.COLUMN_PICTURE_URI, "");
+        }
 
         return values;
     }
