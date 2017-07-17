@@ -40,6 +40,14 @@
         <item name="android:textAppearance">?android:textAppearanceSmall</item>
     </style>
 
+    <style name="SellButtonStyle" parent="AppTheme">
+        <item name="android:textAppearance">?android:textAppearanceSmall</item>
+        <item name="android:padding">@dimen/sell_button_padding</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@android:color/secondary_text_light</item>
+    </style>
+
     <!-- Editor Activity -->
     <style name="EditorTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/colorPrimaryEditor</item>

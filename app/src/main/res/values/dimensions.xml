@@ -21,6 +21,9 @@
     <!-- Button Touch Target Size -->
     <dimen name="button_touch_target_height">48dp</dimen>
 
+    <!-- Sell Button padding within the Catalog Layout -->
+    <dimen name="sell_button_padding">8dp</dimen>
+
     <!-- Smaller margin within the Catalog Layout -->
     <dimen name="catalog_smaller_margin">8dp</dimen>
 
