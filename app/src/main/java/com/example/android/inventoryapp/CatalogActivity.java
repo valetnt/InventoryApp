@@ -27,7 +27,7 @@ public class CatalogActivity extends AppCompatActivity
          * item _id, name, picture, product code, price and quantity in stock
          */
         String[] projection = new String[]{InventoryEntry._ID, InventoryEntry.COLUMN_NAME,
-                InventoryEntry.COLUMN_PICTURE, InventoryEntry.COLUMN_CODE,
+                InventoryEntry.COLUMN_PICTURE_URI, InventoryEntry.COLUMN_CODE,
                 InventoryEntry.COLUMN_PRICE, InventoryEntry.COLUMN_QUANTITY};
 
         return new CursorLoader(this, InventoryEntry.CONTENT_URI, projection, null, null, null);

@@ -105,4 +105,16 @@
     <string name="duplicate_item">Another item with the same product code already exists in this
         database</string>
 
+    <!-- Dialog message for asking the user if he wants to delete the image -->
+    <string name="delete_image_dialog_msg">Delete image?</string>
+
+    <!-- Dialog button text for the option of canceling deletion [CHAR LIMIT=20] -->
+    <string name="cancel">Cancel</string>
+
+    <!-- Dialog button text for the option of confirming deletion [CHAR LIMIT=20] -->
+    <string name="delete">Delete</string>
+
+    <!-- Toast message confirming image deletion from the database -->
+    <string name="image_deleted">Image deleted</string>
+
 </resources>

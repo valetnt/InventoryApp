@@ -17,7 +17,7 @@ public class InventoryDBHelper extends SQLiteOpenHelper {
             + InventoryEntry.COLUMN_CODE + " TEXT NOT NULL, "
             + InventoryEntry.COLUMN_PRICE + " INTEGER, "
             + InventoryEntry.COLUMN_QUANTITY + " INTEGER NOT NULL DEFAULT 0, "
-            + InventoryEntry.COLUMN_PICTURE + " BLOB, "
+            + InventoryEntry.COLUMN_PICTURE_URI + " TEXT, "
             + InventoryEntry.COLUMN_SUPPLIER_NAME + " TEXT, "
             + InventoryEntry.COLUMN_SUPPLIER_MAIL + " TEXT, "
             + InventoryEntry.COLUMN_IMPENDING_ORDERS + " INTEGER NOT NULL DEFAULT 0);" ;

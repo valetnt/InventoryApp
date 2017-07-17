@@ -32,63 +32,16 @@
                     android:layout_height="wrap_content"
                     android:text="@string/label_overview" />
 
-                <RelativeLayout
+                <!-- Picture -->
+                <ImageView
+                    android:id="@+id/item_picture"
                     android:layout_width="@dimen/image_size"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginTop="@dimen/editor_small_margin">
-
-                    <!-- Picture -->
-                    <ImageView
-                        android:id="@+id/item_picture"
-                        android:layout_width="@dimen/image_size"
-                        android:layout_height="@dimen/image_size"
-                        android:scaleType="centerInside"
-                        android:src="@drawable/no_image_available" />
-
-                    <!-- Button to insert picture in insert mode -->
-                    <FrameLayout
-                        android:id="@+id/button_add_photo"
-                        android:layout_width="@dimen/icon_touch_target_size"
-                        android:layout_height="@dimen/icon_touch_target_size"
-                        android:layout_below="@id/item_picture"
-                        android:layout_centerHorizontal="true"
-                        android:layout_marginTop="@dimen/editor_small_margin"
-                        android:background="@drawable/rounded_corner_background"
-                        android:padding="@dimen/editor_smaller_margin">
-
-                        <ImageView
-                            android:layout_width="@dimen/icon_size"
-                            android:layout_height="@dimen/icon_size"
-                            android:layout_gravity="center"
-                            android:background="@color/colorEditorButton"
-                            android:scaleType="centerInside"
-                            android:src="@drawable/ic_add_photo" />
-
-                    </FrameLayout>
-
-                    <!-- Button to edit picture in editor mode -->
-                    <FrameLayout
-                        android:id="@+id/button_change_photo"
-                        android:layout_width="@dimen/icon_touch_target_size"
-                        android:layout_height="@dimen/icon_touch_target_size"
-                        android:layout_below="@id/item_picture"
-                        android:layout_centerHorizontal="true"
-                        android:layout_marginTop="@dimen/editor_small_margin"
-                        android:background="@drawable/rounded_corner_background"
-                        android:padding="@dimen/editor_smaller_margin">
-
-                        <ImageView
-                            android:layout_width="@dimen/icon_size"
-                            android:layout_height="@dimen/icon_size"
-                            android:layout_gravity="center"
-                            android:background="@color/colorEditorButton"
-                            android:scaleType="centerInside"
-                            android:src="@drawable/ic_change_photo" />
-
-                    </FrameLayout>
-
-                </RelativeLayout>
+                    android:layout_height="@dimen/image_size"
+                    android:layout_marginBottom="@dimen/editor_small_margin"
+                    android:layout_marginTop="@dimen/editor_small_margin"
+                    android:background="@android:color/white"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/add_photo" />
 
             </LinearLayout>
 

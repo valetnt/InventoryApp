@@ -1,12 +1,19 @@
 package com.example.android.inventoryapp;
 
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -15,10 +22,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.inventoryapp.data.InventoryContract.InventoryEntry;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 
 public class EditorActivity extends AppCompatActivity
@@ -26,6 +38,7 @@ public class EditorActivity extends AppCompatActivity
 
     public static final int EDITOR_MODE_LOADER = 1;
     public static final int INSERT_MODE_LOADER = 2;
+    private static final int PICK_IMAGE_REQUEST = 0;
     private static final String LOG_TAG = EditorActivity.class.getSimpleName();
     private EditText mNameEditText;
     private EditText mCodeEditText;
@@ -34,6 +47,9 @@ public class EditorActivity extends AppCompatActivity
     private EditText mSupplierEditText;
     private EditText mSupplierEMailEditText;
     private EditText mImpendingOrdersText;
+    private ImageView mPicture;
+    private Uri mPictureUri;
+    private boolean mImageHasChanged = false;
 
     // Uri of the item we want to edit in edit mode
     private Uri mCurrentUri;
@@ -50,7 +66,7 @@ public class EditorActivity extends AppCompatActivity
             // Retrieve all fields for the current item
             String[] projection = new String[]{InventoryEntry._ID, InventoryEntry.COLUMN_NAME,
                     InventoryEntry.COLUMN_CODE, InventoryEntry.COLUMN_PRICE,
-                    InventoryEntry.COLUMN_QUANTITY, InventoryEntry.COLUMN_PICTURE,
+                    InventoryEntry.COLUMN_QUANTITY, InventoryEntry.COLUMN_PICTURE_URI,
                     InventoryEntry.COLUMN_SUPPLIER_NAME, InventoryEntry.COLUMN_SUPPLIER_MAIL,
                     InventoryEntry.COLUMN_IMPENDING_ORDERS};
 
@@ -83,6 +99,7 @@ public class EditorActivity extends AppCompatActivity
             String code = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_CODE));
             String stringPrice = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_PRICE));
             String stringQuantity = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_QUANTITY));
+            String pictureUri = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_PICTURE_URI));
             String supplier = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_SUPPLIER_NAME));
             String email = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_SUPPLIER_MAIL));
             String stringImpendingOrders =
@@ -95,6 +112,59 @@ public class EditorActivity extends AppCompatActivity
             mSupplierEditText.setText(supplier);
             mSupplierEMailEditText.setText(email);
             mImpendingOrdersText.setText(stringImpendingOrders);
+
+            if (pictureUri != null) {
+                try {
+                    Bitmap bitmap = getBitmapFromUri(Uri.parse(pictureUri));
+                    if (bitmap == null) {
+                        mPicture.setImageResource(R.drawable.no_image_available);
+                    } else {
+                        mPicture.setImageBitmap(bitmap);
+
+                        mPicture.setOnLongClickListener(new View.OnLongClickListener() {
+                            @Override
+                            public boolean onLongClick(View v) {
+                                final AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+                                builder.setMessage(R.string.delete_image_dialog_msg);
+                                builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        // User clicked the "Delete" button, so delete the image.
+                                        // Put an empty string as the picture URI, which is equivalent to no image
+                                        ContentResolver contentResolver = getContentResolver();
+                                        ContentValues contentValues = new ContentValues();
+                                        contentValues.put(InventoryEntry.COLUMN_PICTURE_URI, "");
+                                        int rowUpdated = contentResolver.update(mCurrentUri, contentValues, null,
+                                                null);
+                                        // Show a toast message if image has been successfully deleted
+                                        if (rowUpdated == 1) {
+                                            Toast.makeText(builder.getContext(), getString(R.string.image_deleted),
+                                                    Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        // User clicked the "Cancel" button, so dismiss the dialog.
+                                        if (dialog != null) {
+                                            dialog.dismiss();
+                                        }
+                                    }
+                                });
+
+                                // Create and show the AlertDialog
+                                AlertDialog alertDialog = builder.create();
+                                alertDialog.show();
+                                return true;
+                            }
+                        });
+                    }
+
+                } catch (IOException e) {
+                    Log.e(LOG_TAG, "Problem retrieving the image. ", e);
+                }
+            } else {
+                mPicture.setImageResource(R.drawable.no_image_available);
+            }
 
         } else if (loader.getId() == INSERT_MODE_LOADER) {
 
@@ -159,7 +229,8 @@ public class EditorActivity extends AppCompatActivity
             mSupplierEditText.setText("");
             mSupplierEMailEditText.setText("");
             mImpendingOrdersText.setText("");
-
+            mPicture.setImageBitmap(null);
+            mPictureUri = null;
         }
     }
 
@@ -175,9 +246,16 @@ public class EditorActivity extends AppCompatActivity
         mSupplierEditText = (EditText) findViewById(R.id.item_supplier_name);
         mSupplierEMailEditText = (EditText) findViewById(R.id.item_supplier_email);
         mImpendingOrdersText = (EditText) findViewById(R.id.number_of_items_ordered);
+        mPicture = (ImageView) findViewById(R.id.item_picture);
 
-        View buttonAddPhoto = findViewById(R.id.button_add_photo);
-        View buttonChangePhoto = findViewById(R.id.button_change_photo);
+        mPicture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Select an image.
+                openImageSelector();
+            }
+        });
+
         View buttonIncreaseQuantity = findViewById(R.id.button_increase_quantity);
         View buttonDecreaseQuantity = findViewById(R.id.button_decrease_quantity);
         View buttonOrder = findViewById(R.id.button_order);
@@ -204,7 +282,7 @@ public class EditorActivity extends AppCompatActivity
 
         mCurrentUri = getIntent().getData();
         if (mCurrentUri == null) {
-            // We are in insert-new-item mode
+            // If we are in insert-new-item mode
             getSupportActionBar().setTitle(getString(R.string.editor_activity_title_new_item));
 
             // Invalidate the options menu, so the "Delete" menu option can be hidden.
@@ -212,16 +290,12 @@ public class EditorActivity extends AppCompatActivity
             invalidateOptionsMenu();
 
             mQuantityText.setText("0");
-            buttonChangePhoto.setVisibility(View.GONE);
-            buttonAddPhoto.setVisibility(View.VISIBLE);
             buttonOrder.setVisibility(View.GONE);
 
         } else {
-            // We are in edit-existing-item mode
+            // If we are in edit-existing-item mode
             getSupportActionBar().setTitle(getString(R.string.editor_activity_title_edit_item));
 
-            buttonChangePhoto.setVisibility(View.VISIBLE);
-            buttonAddPhoto.setVisibility(View.GONE);
             buttonOrder.setVisibility(View.VISIBLE);
 
             // Product code cannot be edited. If the user has inserted an item with
@@ -232,6 +306,36 @@ public class EditorActivity extends AppCompatActivity
             // Retrieve item data via cursor loader
             LoaderManager loaderManager = getSupportLoaderManager();
             loaderManager.initLoader(EDITOR_MODE_LOADER, null, this);
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        // The ACTION_OPEN_DOCUMENT intent was sent with the request code READ_REQUEST_CODE.
+        // If the request code seen here doesn't match, it's the response to some other intent,
+        // and the below code shouldn't run at all.
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
+            // The document selected by the user won't be returned in the intent.
+            // Instead, a URI to that document will be contained in the return intent
+            // provided to this method as a parameter.  Pull that uri using "resultData.getData()"
+
+            if (resultData != null) {
+                mPictureUri = resultData.getData();
+                Log.i(LOG_TAG, "Uri: " + mPictureUri.toString());
+
+                // Update item picture in the UI.
+                // (Database will only be updated on clicking "Save" menu option)
+                try {
+                    Bitmap bitmap = getBitmapFromUri(mPictureUri);
+                    mPicture.setImageBitmap(bitmap);
+                    Log.i(LOG_TAG, "++++++++++++");
+                    mImageHasChanged = true;
+
+                } catch (IOException e) {
+                    Log.e(LOG_TAG, "Problem retrieving the image. ", e);
+                }
+            }
         }
     }
 
@@ -270,9 +374,10 @@ public class EditorActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+
     private void saveItem() {
 
-        if (mCurrentUri == null) {
+        if (mCurrentUri == null) { // If we are in insert-new-item mode
 
             // Before saving the new item into the database, we must first check that its
             // product code has not been already used (i.e. that the item is not a duplicate).
@@ -281,7 +386,7 @@ public class EditorActivity extends AppCompatActivity
             LoaderManager loaderManager = getSupportLoaderManager();
             loaderManager.initLoader(INSERT_MODE_LOADER, null, this);
 
-        } else {
+        } else { // If we are in edit-existing-item mode
 
             ContentValues values = checkContentValuesToSave();
             if (values != null) {
@@ -310,6 +415,10 @@ public class EditorActivity extends AppCompatActivity
         String item_code = mCodeEditText.getText().toString().trim();
         String item_price = mPriceEditText.getText().toString().trim();
         String quantity = mQuantityText.getText().toString().trim();
+        String pictureUri = null;
+        if (mPictureUri != null) {
+            pictureUri = mPictureUri.toString();
+        }
         String supplier_name = mSupplierEditText.getText().toString().trim();
         String supplier_email = mSupplierEMailEditText.getText().toString().trim();
         String impending_orders = mImpendingOrdersText.getText().toString().trim();
@@ -333,6 +442,9 @@ public class EditorActivity extends AppCompatActivity
         values.put(InventoryEntry.COLUMN_CODE, item_code);
         values.put(InventoryEntry.COLUMN_PRICE, item_price);
         values.put(InventoryEntry.COLUMN_QUANTITY, quantity);
+        if (mImageHasChanged) { // If image has not changed, do not try to update database
+            values.put(InventoryEntry.COLUMN_PICTURE_URI, pictureUri);
+        }
         values.put(InventoryEntry.COLUMN_SUPPLIER_NAME, supplier_name);
         values.put(InventoryEntry.COLUMN_SUPPLIER_MAIL, supplier_email);
         values.put(InventoryEntry.COLUMN_IMPENDING_ORDERS, impending_orders);
@@ -358,5 +470,64 @@ public class EditorActivity extends AppCompatActivity
 
             finish();
         }
+    }
+
+
+    // Helper method to load a bitmap image from a given URI
+    private Bitmap getBitmapFromUri(Uri uri) throws IOException {
+
+        Bitmap bitmap = null;
+
+        if (uri == null || uri.toString().isEmpty())
+            return null;
+
+        // Get the dimensions of the ImageView
+        int targetW = mPicture.getWidth();
+        int targetH = mPicture.getHeight();
+
+        InputStream input = null;
+        try {
+            input = this.getContentResolver().openInputStream(uri);
+            // Get the dimensions of the bitmap
+            BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+            bmOptions.inJustDecodeBounds = true;
+            BitmapFactory.decodeStream(input, null, bmOptions);
+            int photoW = bmOptions.outWidth;
+            int photoH = bmOptions.outHeight;
+
+            // Determine how much to scale down the image
+            int scaleFactor = Math.min(photoW / targetW, photoH / targetH);
+
+            // Decode the image file into a Bitmap sized to fill the View
+            bmOptions.inJustDecodeBounds = false;
+            bmOptions.inSampleSize = scaleFactor;
+
+            input = this.getContentResolver().openInputStream(uri);
+            bitmap = BitmapFactory.decodeStream(input, null, bmOptions);
+
+        } catch (FileNotFoundException e) {
+            Log.e(LOG_TAG, "File not found. ", e);
+
+        } finally {
+            if (input != null) {
+                input.close();
+            }
+        }
+
+        return bitmap;
+    }
+
+    public void openImageSelector() {
+        Intent intent;
+
+        if (Build.VERSION.SDK_INT < 19) {
+            intent = new Intent(Intent.ACTION_GET_CONTENT);
+        } else {
+            intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+        }
+
+        intent.setType("image/*");
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
     }
 }
