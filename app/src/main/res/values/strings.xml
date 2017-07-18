@@ -33,8 +33,8 @@
     <string name="label_item_sell">Sell</string>
 
     <!-- Toast message that says that one item has been sold -->
-    <string name="label_item_sold_part1">One</string>
-    <string name="label_item_sold_part2">has been sold.</string>
+    <string name="label_item_sold_part1">ONE</string>
+    <string name="label_item_sold_part2">HAS BEEN SOLD.</string>
 
     <!-- Toast message that says that selling of the item has failed -->
     <string name="label_item_selling_failed">Cannot sell this item</string>

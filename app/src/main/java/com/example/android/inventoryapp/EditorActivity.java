@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Parcel;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.CursorLoader;
@@ -34,7 +35,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-
 /*
  * This code contains a short excerpt adapted from
  * https://github.com/crlsndrsjmnz/MyShareImageExample/blob/master/app/src/main/java/co/carlosandresjimenez/android/myshareimageexample/MainActivity.java
@@ -44,16 +44,17 @@ import java.io.InputStream;
 public class EditorActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    public static final int EDITOR_MODE_LOADER = 1;
-    public static final int INSERT_MODE_LOADER = 2;
+    public static final int EDITOR_MODE_LOADER_ID = 1;
+    public static final int INSERT_MODE_LOADER_ID = 2;
     private static final int PICK_IMAGE_REQUEST = 0;
     private static final String LOG_TAG = EditorActivity.class.getSimpleName();
 
     // Constant values for storing key-value pairs to support device rotation
     private static final String QUANTITY = "number of items in stock";
-    private static final String PICTURE_URI = "uri of the picture of the item";
+    private static final String IMAGE_URI = "URI of the image";
+    private static final String IMAGE = "resized bitmap";
     private static final String BOOLEAN_IMAGE_DELETED = "true only if image has been deleted";
-    private static final String BOOLEAN_DATA_CHANGED = "true only if editable text fields touched";
+    private static final String BOOLEAN_DATA_CHANGED = "true only if one of editable fields touched";
 
     private EditText mNameEditText;
     private EditText mCodeEditText;
@@ -64,6 +65,7 @@ public class EditorActivity extends AppCompatActivity
     private EditText mImpendingOrdersText;
     private ImageView mPicture;
     private Uri mPictureUri;
+    private Bitmap mBitmap;
     private boolean mImageHasBeenDeleted = false;
     private boolean mDataHasChanged = false;
 
@@ -88,7 +90,7 @@ public class EditorActivity extends AppCompatActivity
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        if (id == EDITOR_MODE_LOADER) {
+        if (id == EDITOR_MODE_LOADER_ID) {
 
             // Retrieve all fields for the current item
             String[] projection = new String[]{InventoryEntry._ID, InventoryEntry.COLUMN_NAME,
@@ -99,7 +101,7 @@ public class EditorActivity extends AppCompatActivity
 
             return new CursorLoader(this, mCurrentUri, projection, null, null, null);
 
-        } else if (id == INSERT_MODE_LOADER) {
+        } else if (id == INSERT_MODE_LOADER_ID) {
 
             // Retrieve all product codes already present in the database
             String[] projection = new String[]{InventoryEntry.COLUMN_CODE};
@@ -113,7 +115,7 @@ public class EditorActivity extends AppCompatActivity
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
-        if (loader.getId() == EDITOR_MODE_LOADER) {
+        if (loader.getId() == EDITOR_MODE_LOADER_ID) {
 
             // Bail early if the cursor is null or there is less than 1 row in the cursor
             if (data == null || data.getCount() < 1) {
@@ -141,54 +143,25 @@ public class EditorActivity extends AppCompatActivity
             mImpendingOrdersText.setText(stringImpendingOrders);
 
             if (pictureUri != null) {
+                mPictureUri = Uri.parse(pictureUri);
                 try {
-                    Bitmap bitmap = getBitmapFromUri(Uri.parse(pictureUri));
-                    if (bitmap == null) {
-                        mPicture.setImageResource(R.drawable.no_image_available);
-                        mPictureUri = null;
-                    } else {
+                    Bitmap bitmap = getBitmapFromUri(mPictureUri);
+                    if (bitmap != null) {
                         mPicture.setImageBitmap(bitmap);
-                        mPictureUri = Uri.parse(pictureUri);
 
-                        mPicture.setOnLongClickListener(new View.OnLongClickListener() {
-                            @Override
-                            public boolean onLongClick(View v) {
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-                                builder.setMessage(R.string.delete_image_dialog_msg);
-                                builder.setPositiveButton(R.string.confirm_image_deletion, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        // User clicked the "Delete" button, so delete the image.
-                                        // Update database, so that also UI updates immediately.
-                                        mImageHasBeenDeleted = true;
-                                        mPictureUri = null;
-                                        updateItem();
-                                    }
-                                });
-                                builder.setNegativeButton(R.string.cancel_image_deletion, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        // User clicked the "Cancel" button, so dismiss the dialog.
-                                        if (dialog != null) {
-                                            dialog.dismiss();
-                                        }
-                                    }
-                                });
-
-                                // Create and show the AlertDialog
-                                AlertDialog alertDialog = builder.create();
-                                alertDialog.show();
-                                return true;
-                            }
-                        });
+                    } else {
+                        mPicture.setImageResource(R.drawable.no_image_available);
                     }
 
                 } catch (IOException e) {
                     Log.e(LOG_TAG, "Problem retrieving the image. ", e);
                 }
+
             } else {
                 mPicture.setImageResource(R.drawable.no_image_available);
             }
 
-        } else if (loader.getId() == INSERT_MODE_LOADER) {
+        } else if (loader.getId() == INSERT_MODE_LOADER_ID) {
 
             if (data != null && data.getCount() > 0) {
 
@@ -219,7 +192,7 @@ public class EditorActivity extends AppCompatActivity
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
-        if (loader.getId() == EDITOR_MODE_LOADER) {
+        if (loader.getId() == EDITOR_MODE_LOADER_ID) {
 
             // Clear all data fields
             mNameEditText.setText("");
@@ -230,7 +203,6 @@ public class EditorActivity extends AppCompatActivity
             mSupplierEMailEditText.setText("");
             mImpendingOrdersText.setText("");
             mPicture.setImageBitmap(null);
-            mPictureUri = null;
         }
     }
 
@@ -247,6 +219,8 @@ public class EditorActivity extends AppCompatActivity
         mSupplierEMailEditText = (EditText) findViewById(R.id.item_supplier_email);
         mImpendingOrdersText = (EditText) findViewById(R.id.number_of_items_ordered);
         mPicture = (ImageView) findViewById(R.id.item_picture);
+        mPictureUri = null;
+        mBitmap = null;
 
         mPicture.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -314,7 +288,45 @@ public class EditorActivity extends AppCompatActivity
 
             // Retrieve item data via cursor loader
             LoaderManager loaderManager = getSupportLoaderManager();
-            loaderManager.initLoader(EDITOR_MODE_LOADER, null, this);
+            loaderManager.initLoader(EDITOR_MODE_LOADER_ID, null, this);
+
+            mPicture.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+
+                    if (!mImageHasBeenDeleted && mPictureUri != null) {
+
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+                        builder.setMessage(R.string.delete_image_dialog_msg);
+                        builder.setPositiveButton(R.string.confirm_image_deletion, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // User clicked the "Delete" button, so delete the image.
+                                mPicture.setImageResource(R.drawable.no_image_available);
+                                mImageHasBeenDeleted = true;
+                                // Update database
+                                mPictureUri = null;
+                                updateItem();
+                            }
+                        });
+                        builder.setNegativeButton(R.string.cancel_image_deletion, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // User clicked the "Cancel" button, so dismiss the dialog.
+                                if (dialog != null) {
+                                    dialog.dismiss();
+                                }
+                            }
+                        });
+
+                        // Create and show the AlertDialog
+                        AlertDialog alertDialog = builder.create();
+                        alertDialog.show();
+                        return true;
+                    }
+
+                    return false;
+
+                }
+            });
 
             buttonOrder.setVisibility(View.VISIBLE);
             buttonOrder.setOnClickListener(new View.OnClickListener() {
@@ -338,13 +350,17 @@ public class EditorActivity extends AppCompatActivity
 
         outState.putInt(QUANTITY, Integer.parseInt(mQuantityText.getText().toString()));
         outState.putBoolean(BOOLEAN_DATA_CHANGED, mDataHasChanged);
-        if (mPictureUri == null) {
-            outState.putString(PICTURE_URI, ""); // equivalent to setting a null URI
-        } else {
-            outState.putString(PICTURE_URI, mPictureUri.toString());
-        }
         outState.putBoolean(BOOLEAN_IMAGE_DELETED, mImageHasBeenDeleted);
-
+        if (mPictureUri != null) {
+            outState.putString(IMAGE_URI, mPictureUri.toString());
+        }
+        if (mBitmap != null) {
+            Parcel parcel = Parcel.obtain();
+            mBitmap.writeToParcel(parcel, 0);
+            parcel.setDataPosition(0);
+            Bitmap destinationBitmap = Bitmap.CREATOR.createFromParcel(parcel);
+            outState.putParcelable(IMAGE, destinationBitmap);
+        }
     }
 
     @Override
@@ -353,9 +369,17 @@ public class EditorActivity extends AppCompatActivity
 
         mQuantityText.setText(String.valueOf(savedInstanceState.getInt(QUANTITY)));
         mDataHasChanged = savedInstanceState.getBoolean(BOOLEAN_DATA_CHANGED);
-        mPictureUri = Uri.parse(savedInstanceState.getString(PICTURE_URI));
+        if (savedInstanceState.containsKey(IMAGE_URI)) {
+            mPictureUri = Uri.parse(savedInstanceState.getString(IMAGE_URI));
+        }
         mImageHasBeenDeleted = savedInstanceState.getBoolean(BOOLEAN_IMAGE_DELETED);
-
+        if (mImageHasBeenDeleted) {
+            mPicture.setImageResource(R.drawable.no_image_available);
+        }
+        if (savedInstanceState.containsKey(IMAGE)) {
+            mBitmap = savedInstanceState.getParcelable(IMAGE);
+            mPicture.setImageBitmap(mBitmap);
+        }
     }
 
     @Override
@@ -370,15 +394,25 @@ public class EditorActivity extends AppCompatActivity
             // provided to this method as a parameter.  Pull that uri using "resultData.getData()"
 
             if (resultData != null) {
-                // Update item picture in the UI.
-                // (Updating of the database will only take place on clicking "Save" menu option)
-                mPictureUri = resultData.getData();
+                Uri selectedUri = resultData.getData();
                 try {
-                    Bitmap bitmap = getBitmapFromUri(mPictureUri);
+                    Bitmap bitmap = getBitmapFromUri(selectedUri);
                     if (bitmap != null) {
+                        mPictureUri = selectedUri;
+                        // Update item picture in the UI
                         mPicture.setImageBitmap(bitmap);
-                    }
+                        mImageHasBeenDeleted = false; // We reinitialize this boolean to false
 
+                        // Update database, only if in editor-mode
+                        if (mCurrentUri != null) {
+                            updateItem();
+
+                        } else {
+                            // Store bitmap so that we can rotate the device without
+                            // losing the image. Database is NOT updated until the user saves.
+                            mBitmap = bitmap;
+                        }
+                    }
                 } catch (IOException e) {
                     Log.e(LOG_TAG, "Problem retrieving the image. ", e);
                 }
@@ -525,9 +559,9 @@ public class EditorActivity extends AppCompatActivity
             // Before saving the new item into the database, we must first check that its
             // product code has not been already used (i.e. that the item is not a duplicate).
             // Query database for product code via a cursor loader.
-            // Perform this check in onLoadFinished()
+            // Perform this check and insert item in onLoadFinished()
             LoaderManager loaderManager = getSupportLoaderManager();
-            loaderManager.initLoader(INSERT_MODE_LOADER, null, this);
+            loaderManager.initLoader(INSERT_MODE_LOADER_ID, null, this);
 
         } else { // If we are in edit-existing-item mode
             updateItem();
@@ -556,8 +590,13 @@ public class EditorActivity extends AppCompatActivity
 
             // Terminate the activity
             finish();
+            // Now that the item has been saved into the database, we can discard the bitmap.
+            // This will release some memory space.
+            if (mBitmap != null) {
+                mBitmap = null;
+            }
             // Destroy the loader
-            getSupportLoaderManager().destroyLoader(INSERT_MODE_LOADER);
+            getSupportLoaderManager().destroyLoader(INSERT_MODE_LOADER_ID);
         }
     }
 
@@ -617,10 +656,8 @@ public class EditorActivity extends AppCompatActivity
             String pictureUri = mPictureUri.toString();
             values.put(InventoryEntry.COLUMN_PICTURE_URI, pictureUri);
 
-        } else if (mImageHasBeenDeleted) {
-            // It makes sense to update the database by setting the image to "no image"
-            // ONLY IF the user has explicitly chosen to delete the image.
-            values.put(InventoryEntry.COLUMN_PICTURE_URI, "");
+        } else {
+            values.put(InventoryEntry.COLUMN_PICTURE_URI, (String) null);
         }
 
         return values;

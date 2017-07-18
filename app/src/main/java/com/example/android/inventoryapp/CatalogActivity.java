@@ -16,7 +16,7 @@ import com.example.android.inventoryapp.data.InventoryContract.InventoryEntry;
 public class CatalogActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    public static final int CATALOG_LOADER = 0;
+    public static final int CATALOG_LOADER_ID = 0;
     private static final String LOG_TAG = CatalogActivity.class.getSimpleName();
     private InventoryCursorAdapter mCursorAdapter;
 
@@ -70,6 +70,6 @@ public class CatalogActivity extends AppCompatActivity
 
         // Initialize the cursor loader
         LoaderManager loaderManager = getSupportLoaderManager();
-        loaderManager.initLoader(CATALOG_LOADER, null, this);
+        loaderManager.initLoader(CATALOG_LOADER_ID, null, this);
     }
 }
