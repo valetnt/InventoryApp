@@ -2,7 +2,6 @@ package com.example.android.inventoryapp;
 
 import android.app.Activity;
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -35,7 +34,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static android.R.attr.name;
 
 /*
  * This code contains a short excerpt adapted from
@@ -50,13 +48,13 @@ public class EditorActivity extends AppCompatActivity
     public static final int INSERT_MODE_LOADER = 2;
     private static final int PICK_IMAGE_REQUEST = 0;
     private static final String LOG_TAG = EditorActivity.class.getSimpleName();
-    /*
+
     // Constant values for storing key-value pairs to support device rotation
     private static final String QUANTITY = "number of items in stock";
-    private static final String BOOLEAN_IMAGE_CHANGED = "true only if image has changed";
+    private static final String PICTURE_URI = "uri of the picture of the item";
     private static final String BOOLEAN_IMAGE_DELETED = "true only if image has been deleted";
-    private static final String BOOLEAN_DATA_CHANGED = "true only if UI changes detected";
-    */
+    private static final String BOOLEAN_DATA_CHANGED = "true only if editable text fields touched";
+
     private EditText mNameEditText;
     private EditText mCodeEditText;
     private EditText mPriceEditText;
@@ -66,13 +64,12 @@ public class EditorActivity extends AppCompatActivity
     private EditText mImpendingOrdersText;
     private ImageView mPicture;
     private Uri mPictureUri;
-    private boolean mImageHasChanged = false;
     private boolean mImageHasBeenDeleted = false;
     private boolean mDataHasChanged = false;
+
     // Uri of the item we want to edit in edit mode
     private Uri mCurrentUri;
-    //private static final String WIDTH = "width of the ImageView";
-    //private static final String HEIGHT = "height of the ImageView";
+
     /**
      * Implementation of OnTouchListener interface to detect changes of editable fields
      */
@@ -148,8 +145,10 @@ public class EditorActivity extends AppCompatActivity
                     Bitmap bitmap = getBitmapFromUri(Uri.parse(pictureUri));
                     if (bitmap == null) {
                         mPicture.setImageResource(R.drawable.no_image_available);
+                        mPictureUri = null;
                     } else {
                         mPicture.setImageBitmap(bitmap);
+                        mPictureUri = Uri.parse(pictureUri);
 
                         mPicture.setOnLongClickListener(new View.OnLongClickListener() {
                             @Override
@@ -159,13 +158,10 @@ public class EditorActivity extends AppCompatActivity
                                 builder.setPositiveButton(R.string.confirm_image_deletion, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
                                         // User clicked the "Delete" button, so delete the image.
-                                        // Update database immediately.
-                                        mImageHasChanged = true;
+                                        // Update database, so that also UI updates immediately.
                                         mImageHasBeenDeleted = true;
-                                        ContentResolver contentResolver = getContentResolver();
-                                        ContentValues values = new ContentValues();
-                                        values.put(InventoryEntry.COLUMN_PICTURE_URI, "");
-                                        contentResolver.update(mCurrentUri, values, null, null);
+                                        mPictureUri = null;
+                                        updateItem();
                                     }
                                 });
                                 builder.setNegativeButton(R.string.cancel_image_deletion, new DialogInterface.OnClickListener() {
@@ -215,29 +211,7 @@ public class EditorActivity extends AppCompatActivity
                     || (data.getCount() > 0 && data.isAfterLast())) {
                 // If we have reached the last index without having encountered any duplicates
                 // of the product code field, then the new item can be inserted into the database.
-
-                ContentValues values = checkContentValuesToSave();
-                if (values != null) {
-
-                    // Insert new item into the database
-                    ContentResolver contentResolver = getContentResolver();
-                    Uri newUri = contentResolver.insert(InventoryEntry.CONTENT_URI, values);
-
-                    // Show a toast message depending on whether or not the insertion was successful
-                    if (newUri == null) {
-                        // If the new content URI is null, then there was an error with insertion.
-                        Toast.makeText(this, getString(R.string.insert_failed),
-                                Toast.LENGTH_SHORT).show();
-                    } else {
-                        // Otherwise, the insertion was successful and we can display a toast.
-                        Toast.makeText(this, getString(R.string.insert_successful),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                    // Terminate the activity
-                    finish();
-                    // Destroy the loader
-                    getSupportLoaderManager().destroyLoader(INSERT_MODE_LOADER);
-                }
+                insertNewItem();
             }
         }
     }
@@ -288,6 +262,7 @@ public class EditorActivity extends AppCompatActivity
         mSupplierEditText.setOnTouchListener(mTouchListener);
         mSupplierEMailEditText.setOnTouchListener(mTouchListener);
         mImpendingOrdersText.setOnTouchListener(mTouchListener);
+        mPicture.setOnTouchListener(mTouchListener);
 
         View buttonIncreaseQuantity = findViewById(R.id.button_increase_quantity);
         View buttonDecreaseQuantity = findViewById(R.id.button_decrease_quantity);
@@ -360,23 +335,27 @@ public class EditorActivity extends AppCompatActivity
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        /*
+
         outState.putInt(QUANTITY, Integer.parseInt(mQuantityText.getText().toString()));
         outState.putBoolean(BOOLEAN_DATA_CHANGED, mDataHasChanged);
-        outState.putBoolean(BOOLEAN_IMAGE_CHANGED, mImageHasChanged);
+        if (mPictureUri == null) {
+            outState.putString(PICTURE_URI, ""); // equivalent to setting a null URI
+        } else {
+            outState.putString(PICTURE_URI, mPictureUri.toString());
+        }
         outState.putBoolean(BOOLEAN_IMAGE_DELETED, mImageHasBeenDeleted);
-        */
+
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        /*
+
         mQuantityText.setText(String.valueOf(savedInstanceState.getInt(QUANTITY)));
         mDataHasChanged = savedInstanceState.getBoolean(BOOLEAN_DATA_CHANGED);
-        mImageHasChanged = savedInstanceState.getBoolean(BOOLEAN_IMAGE_CHANGED);
+        mPictureUri = Uri.parse(savedInstanceState.getString(PICTURE_URI));
         mImageHasBeenDeleted = savedInstanceState.getBoolean(BOOLEAN_IMAGE_DELETED);
-        */
+
     }
 
     @Override
@@ -391,15 +370,13 @@ public class EditorActivity extends AppCompatActivity
             // provided to this method as a parameter.  Pull that uri using "resultData.getData()"
 
             if (resultData != null) {
-                mPictureUri = resultData.getData();
-
                 // Update item picture in the UI.
-                // (Database will only be updated on clicking "Save" menu option)
+                // (Updating of the database will only take place on clicking "Save" menu option)
+                mPictureUri = resultData.getData();
                 try {
                     Bitmap bitmap = getBitmapFromUri(mPictureUri);
                     if (bitmap != null) {
                         mPicture.setImageBitmap(bitmap);
-                        mImageHasChanged = true;
                     }
 
                 } catch (IOException e) {
@@ -445,7 +422,7 @@ public class EditorActivity extends AppCompatActivity
             case android.R.id.home:
                 // If the data hasn't changed, continue with navigating up to parent activity
                 // which is the {@link CatalogActivity}.
-                if (!mDataHasChanged && !mImageHasChanged) {
+                if (!mDataHasChanged) {
                     NavUtils.navigateUpFromSameTask(EditorActivity.this);
                     return true;
                 }
@@ -472,8 +449,8 @@ public class EditorActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        // If the pet hasn't changed, continue with handling back button press
-        if (!mDataHasChanged && !mImageHasChanged) {
+        // If the item hasn't changed, continue with handling back button press
+        if (!mDataHasChanged) {
             super.onBackPressed();
             return;
         }
@@ -553,24 +530,52 @@ public class EditorActivity extends AppCompatActivity
             loaderManager.initLoader(INSERT_MODE_LOADER, null, this);
 
         } else { // If we are in edit-existing-item mode
+            updateItem();
+            finish();
+        }
+    }
 
-            ContentValues values = checkContentValuesToSave();
-            if (values != null) {
+    private void insertNewItem() {
 
-                // Update item
-                ContentResolver contentResolver = getContentResolver();
-                int rowUpdated = contentResolver.update(mCurrentUri, values, null, null);
+        ContentValues values = checkContentValuesToSave();
+        if (values != null) {
+            // Insert new item into the database
+            ContentResolver contentResolver = getContentResolver();
+            Uri newUri = contentResolver.insert(InventoryEntry.CONTENT_URI, values);
 
-                // Show a toast message depending on whether or not the updating was successful
-                if (rowUpdated == 1) {
-                    Toast.makeText(this, getString(R.string.update_successful),
-                            Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(this, getString(R.string.update_failed),
-                            Toast.LENGTH_SHORT).show();
-                }
+            // Show a toast message depending on whether or not the insertion was successful
+            if (newUri == null) {
+                // If the new content URI is null, then there was an error with insertion.
+                Toast.makeText(this, getString(R.string.insert_failed),
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                // Otherwise, the insertion was successful and we can display a toast.
+                Toast.makeText(this, getString(R.string.insert_successful),
+                        Toast.LENGTH_SHORT).show();
+            }
 
-                finish();
+            // Terminate the activity
+            finish();
+            // Destroy the loader
+            getSupportLoaderManager().destroyLoader(INSERT_MODE_LOADER);
+        }
+    }
+
+    private void updateItem() {
+
+        ContentValues values = checkContentValuesToSave();
+        if (values != null) {
+            // Update item
+            ContentResolver contentResolver = getContentResolver();
+            int rowUpdated = contentResolver.update(mCurrentUri, values, null, null);
+
+            // Show a toast message depending on whether or not the updating was successful
+            if (rowUpdated == 1) {
+                Toast.makeText(this, getString(R.string.update_successful),
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, getString(R.string.update_failed),
+                        Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -650,10 +655,7 @@ public class EditorActivity extends AppCompatActivity
         if (uri == null || uri.toString().isEmpty())
             return null;
 
-        // Get the dimensions of the ImageView
-        // This will be useful to properly resize the bitmap image
-        int width = mPicture.getWidth();
-        int height = mPicture.getHeight();
+        int targetSize = (int) getResources().getDimension(R.dimen.image_size);
 
         InputStream input = null;
         try {
@@ -666,7 +668,7 @@ public class EditorActivity extends AppCompatActivity
             int photoH = bmOptions.outHeight;
 
             // Determine how much to scale down the image
-            int scaleFactor = Math.min(photoW / width, photoH / height);
+            int scaleFactor = Math.min(photoW / targetSize, photoH / targetSize);
 
             // Decode the image file into a Bitmap sized to fill the View
             bmOptions.inJustDecodeBounds = false;
