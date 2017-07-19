@@ -108,7 +108,7 @@ public class InventoryProvider extends ContentProvider {
     }
 
     /**
-     * Insert new data into the provider with the given ContentValues.
+     * Insert new data with the given ContentValues.
      */
     @Nullable
     @Override
@@ -134,7 +134,10 @@ public class InventoryProvider extends ContentProvider {
      */
     private Uri insertItem(Uri uri, ContentValues values) {
 
-        // Data Validation
+        /*
+         * Data Validation
+         */
+
         // Check that name is not null
         String name = values.getAsString(InventoryEntry.COLUMN_NAME);
         if (name == null) {
@@ -159,10 +162,10 @@ public class InventoryProvider extends ContentProvider {
             throw new IllegalArgumentException("Item requires valid quantity");
         }
 
-        // Check that number of items ordered, if specified, is positive
+        // Check that number of impending orders, if specified, is positive
         Integer impending_orders = values.getAsInteger(InventoryEntry.COLUMN_IMPENDING_ORDERS);
         if (impending_orders != null && impending_orders < 0) {
-            throw new IllegalArgumentException("Number of items ordered is invalid");
+            throw new IllegalArgumentException("Number of impending orders is invalid");
         }
 
         // Get writable database
@@ -248,11 +251,11 @@ public class InventoryProvider extends ContentProvider {
             }
         }
 
-        // If number of items ordered is updated, new value must be positive (if specified)
+        // If number of impending orders is updated, new value must be positive (if specified)
         if (values.containsKey(InventoryEntry.COLUMN_IMPENDING_ORDERS)) {
             Integer impending_orders = values.getAsInteger(InventoryEntry.COLUMN_IMPENDING_ORDERS);
             if (impending_orders != null && impending_orders < 0) {
-                throw new IllegalArgumentException("Number of items ordered is invalid");
+                throw new IllegalArgumentException("Number of impending orders is invalid");
             }
         }
 
