@@ -61,8 +61,9 @@ public class EditorActivity extends AppCompatActivity
     private static final String QUANTITY = "number of items in stock";
     private static final String IMAGE_URI = "URI of the image";
     private static final String IMAGE = "resized bitmap";
-    private static final String BOOLEAN_IMAGE_DELETED = "true only if image has been deleted";
-    private static final String BOOLEAN_DATA_CHANGED = "true only if one of editable fields touched";
+    private static final String BOOLEAN_IMAGE_INSERTED = "true if an image has been picked";
+    private static final String BOOLEAN_IMAGE_DELETED = "true if the image has been deleted";
+    private static final String BOOLEAN_DATA_CHANGED = "true if one of editable fields touched";
 
     private EditText mNameEditText;
     private EditText mCodeEditText;
@@ -74,6 +75,8 @@ public class EditorActivity extends AppCompatActivity
     private ImageView mPicture;
     private Uri mPictureUri;
     private Bitmap mBitmap;
+
+    private boolean mImageHasBeenInserted = false; // Variable used only in insert-mode
     private boolean mImageHasBeenDeleted = false;
     private boolean mDataHasChanged = false;
 
@@ -252,11 +255,10 @@ public class EditorActivity extends AppCompatActivity
         outState.putInt(QUANTITY, Integer.parseInt(mQuantityText.getText().toString()));
         outState.putBoolean(BOOLEAN_DATA_CHANGED, mDataHasChanged);
         outState.putBoolean(BOOLEAN_IMAGE_DELETED, mImageHasBeenDeleted);
+        outState.putBoolean(BOOLEAN_IMAGE_INSERTED, mImageHasBeenInserted);
 
         if (mPictureUri != null) {
             outState.putString(IMAGE_URI, mPictureUri.toString());
-        } else {
-            outState.putString(IMAGE_URI, null);
         }
 
         if (mBitmap != null) {
@@ -274,7 +276,21 @@ public class EditorActivity extends AppCompatActivity
 
         mQuantityText.setText(String.valueOf(savedInstanceState.getInt(QUANTITY)));
         mDataHasChanged = savedInstanceState.getBoolean(BOOLEAN_DATA_CHANGED);
-        mPictureUri = Uri.parse(savedInstanceState.getString(IMAGE_URI));
+
+        mImageHasBeenInserted = savedInstanceState.getBoolean(BOOLEAN_IMAGE_INSERTED);
+        if(mCurrentItemUri == null) {
+            if(!mImageHasBeenInserted) {
+                mPicture.setImageResource(R.drawable.add_photo);
+            } else {
+                mPicture.setImageResource(R.drawable.no_image_available);
+            }
+        }
+
+        if (savedInstanceState.containsKey(IMAGE_URI)) {
+            mPictureUri = Uri.parse(savedInstanceState.getString(IMAGE_URI));
+        } else {
+            mPictureUri = null;
+        }
 
         mImageHasBeenDeleted = savedInstanceState.getBoolean(BOOLEAN_IMAGE_DELETED);
         if (mImageHasBeenDeleted) {
@@ -284,7 +300,7 @@ public class EditorActivity extends AppCompatActivity
         if (savedInstanceState.containsKey(IMAGE)) {
             mBitmap = savedInstanceState.getParcelable(IMAGE);
             mPicture.setImageBitmap(mBitmap);
-        } else {
+        } else if (mCurrentItemUri != null) {
             mBitmap = null;
             mPicture.setImageResource(R.drawable.no_image_available);
         }
@@ -304,6 +320,12 @@ public class EditorActivity extends AppCompatActivity
                 // Retrieve the image associated with this URI and store it as a bitmap.
                 try {
                     mBitmap = getBitmapFromUri(selectedImageUri);
+
+                    // If we are in insert-mode, from this point onwards the UI will not
+                    // prompt the user anymore to insert a picture. It will simply show
+                    // the photo chosen by the user or a "no-image-available" view.
+                    mImageHasBeenInserted = true;
+
                     if (mBitmap != null) {
                         mPictureUri = selectedImageUri;
                         // Update item picture in the UI
@@ -432,20 +454,18 @@ public class EditorActivity extends AppCompatActivity
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
-        if (loader.getId() == EDITOR_MODE_LOADER_ID) {
+        // Clear all data fields
+        mNameEditText.setText("");
+        mCodeEditText.setText("");
+        mQuantityText.setText("");
+        mPriceEditText.setText("");
+        mSupplierEditText.setText("");
+        mSupplierEMailEditText.setText("");
+        mImpendingOrdersText.setText("");
+        mPicture.setImageBitmap(null);
+        mPictureUri = null;
+        mBitmap = null;
 
-            // Clear all data fields
-            mNameEditText.setText("");
-            mCodeEditText.setText("");
-            mQuantityText.setText("");
-            mPriceEditText.setText("");
-            mSupplierEditText.setText("");
-            mSupplierEMailEditText.setText("");
-            mImpendingOrdersText.setText("");
-            mPicture.setImageBitmap(null);
-            mPictureUri = null;
-            mBitmap = null;
-        }
     }
 
 
