@@ -284,7 +284,11 @@ public class EditorActivity extends AppCompatActivity
         if (savedInstanceState.containsKey(IMAGE)) {
             mBitmap = savedInstanceState.getParcelable(IMAGE);
             mPicture.setImageBitmap(mBitmap);
+        } else {
+            mBitmap = null;
+            mPicture.setImageResource(R.drawable.no_image_available);
         }
+
     }
 
     @Override
