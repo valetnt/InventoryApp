@@ -81,7 +81,7 @@ public class EditorActivity extends AppCompatActivity
     private Uri mCurrentItemUri;
 
     /**
-     * Implementation of View.OnTouchListener interface to detect changes of editable fields.
+     * Implementation of OnTouchListener interface to detect changes of editable fields.
      */
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
         @Override
@@ -154,12 +154,14 @@ public class EditorActivity extends AppCompatActivity
         // It can be launched either in INSERT-NEW-ITEM mode (if the user clicks the floating
         // action button to add a new item) or in EDIT-ITEM mode (if the user clicks one of the
         // catalog list items). In the former case, the intent does NOT contain any data, while
-        // in the latter case the intent contains the
-        //
+        // in the latter case the intent contains the content URI for the selected item.
+        // To pull the data attached to the intent, call getIntent().getData()
 
         mCurrentItemUri = getIntent().getData();
+
         if (mCurrentItemUri == null) {
-            // If we are in insert-new-item mode
+            // If we are in INSERT-NEW-ITEM mode
+
             getSupportActionBar().setTitle(getString(R.string.editor_activity_title_new_item));
 
             // Invalidate the options menu, so the "Delete" menu option can be hidden.
@@ -167,10 +169,12 @@ public class EditorActivity extends AppCompatActivity
             invalidateOptionsMenu();
 
             mQuantityText.setText("0");
-            buttonOrder.setVisibility(View.GONE);
+            buttonOrder.setVisibility(View.GONE); // You cannot order an item that hasn't been
+            // created yet.
 
         } else {
-            // If we are in edit-existing-item mode
+            // If we are in EDIT-ITEM mode
+
             getSupportActionBar().setTitle(getString(R.string.editor_activity_title_edit_item));
 
             // Product code cannot be edited. If the user has inserted an item with
@@ -185,29 +189,36 @@ public class EditorActivity extends AppCompatActivity
             mPicture.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
+                    // If the user long-clicks the ImageView, he can delete the current image.
 
+                    // If the image has already been deleted during this editing session,
+                    // or if there is no image available for the item in the database,
+                    // it makes no sense to enable this feature.
                     if (!mImageHasBeenDeleted && mPictureUri != null) {
 
                         final AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
                         builder.setMessage(R.string.delete_image_dialog_msg);
-                        builder.setPositiveButton(R.string.confirm_image_deletion, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                // User clicked the "Delete" button, so delete the image.
-                                mPicture.setImageResource(R.drawable.no_image_available);
-                                mImageHasBeenDeleted = true;
-                                // Update database
-                                mPictureUri = null;
-                                updateItem();
-                            }
-                        });
-                        builder.setNegativeButton(R.string.cancel_image_deletion, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                // User clicked the "Cancel" button, so dismiss the dialog.
-                                if (dialog != null) {
-                                    dialog.dismiss();
-                                }
-                            }
-                        });
+                        builder.setPositiveButton(R.string.confirm_image_deletion,
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+
+                                        // User clicked the "Delete" button, so delete the image.
+                                        mPicture.setImageResource(R.drawable.no_image_available);
+                                        mImageHasBeenDeleted = true;
+                                        // Update database
+                                        mPictureUri = null;
+                                        updateItem();
+                                    }
+                                });
+                        builder.setNegativeButton(R.string.cancel_image_deletion,
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        // User clicked the "Cancel" button, so dismiss the dialog.
+                                        if (dialog != null) {
+                                            dialog.dismiss();
+                                        }
+                                    }
+                                });
 
                         // Create and show the AlertDialog
                         AlertDialog alertDialog = builder.create();
