@@ -44,8 +44,11 @@ import java.io.InputStream;
 public class EditorActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    // Tag for the loader used in edit-item mode
     public static final int EDITOR_MODE_LOADER_ID = 1;
+    // Tag for the loader used in insert-new-item mode
     public static final int INSERT_MODE_LOADER_ID = 2;
+    // Tag for receiving
     private static final int PICK_IMAGE_REQUEST = 0;
     private static final String LOG_TAG = EditorActivity.class.getSimpleName();
 
@@ -83,128 +86,6 @@ public class EditorActivity extends AppCompatActivity
         }
     };
 
-    /**
-     * Implementation of the {@link LoaderManager.LoaderCallbacks} interface.
-     * The cursor loader returns the results of a database query for a specific row.
-     */
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-
-        if (id == EDITOR_MODE_LOADER_ID) {
-
-            // Retrieve all fields for the current item
-            String[] projection = new String[]{InventoryEntry._ID, InventoryEntry.COLUMN_NAME,
-                    InventoryEntry.COLUMN_CODE, InventoryEntry.COLUMN_PRICE,
-                    InventoryEntry.COLUMN_QUANTITY, InventoryEntry.COLUMN_PICTURE_URI,
-                    InventoryEntry.COLUMN_SUPPLIER_NAME, InventoryEntry.COLUMN_SUPPLIER_MAIL,
-                    InventoryEntry.COLUMN_IMPENDING_ORDERS};
-
-            return new CursorLoader(this, mCurrentUri, projection, null, null, null);
-
-        } else if (id == INSERT_MODE_LOADER_ID) {
-
-            // Retrieve all product codes already present in the database
-            String[] projection = new String[]{InventoryEntry.COLUMN_CODE};
-
-            return new CursorLoader(this, InventoryEntry.CONTENT_URI, projection, null, null, null);
-        }
-
-        return null;
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-
-        if (loader.getId() == EDITOR_MODE_LOADER_ID) {
-
-            // Bail early if the cursor is null or there is less than 1 row in the cursor
-            if (data == null || data.getCount() < 1) {
-                return;
-            }
-
-            data.moveToFirst();
-
-            String name = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_NAME));
-            String code = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_CODE));
-            String stringPrice = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_PRICE));
-            String stringQuantity = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_QUANTITY));
-            String pictureUri = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_PICTURE_URI));
-            String supplier = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_SUPPLIER_NAME));
-            String email = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_SUPPLIER_MAIL));
-            String stringImpendingOrders =
-                    data.getString(data.getColumnIndex(InventoryEntry.COLUMN_IMPENDING_ORDERS));
-
-            mNameEditText.setText(name);
-            mCodeEditText.setText(code);
-            mPriceEditText.setText(stringPrice);
-            mQuantityText.setText(stringQuantity);
-            mSupplierEditText.setText(supplier);
-            mSupplierEMailEditText.setText(email);
-            mImpendingOrdersText.setText(stringImpendingOrders);
-
-            if (pictureUri != null) {
-                mPictureUri = Uri.parse(pictureUri);
-                try {
-                    Bitmap bitmap = getBitmapFromUri(mPictureUri);
-                    if (bitmap != null) {
-                        mPicture.setImageBitmap(bitmap);
-
-                    } else {
-                        mPicture.setImageResource(R.drawable.no_image_available);
-                    }
-
-                } catch (IOException e) {
-                    Log.e(LOG_TAG, "Problem retrieving the image. ", e);
-                }
-
-            } else {
-                mPicture.setImageResource(R.drawable.no_image_available);
-            }
-
-        } else if (loader.getId() == INSERT_MODE_LOADER_ID) {
-
-            if (data != null && data.getCount() > 0) {
-
-                data.moveToFirst();
-                while (!data.isAfterLast()) {
-                    String code = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_CODE));
-                    if ((code.toLowerCase()).equals
-                            (mCodeEditText.getText().toString().trim().toLowerCase())) {
-                        // If item is a duplicate, it must not be saved into the database!
-                        // Break the loop and display a warning message to the user.
-                        Toast.makeText(this, getString(R.string.duplicate_item),
-                                Toast.LENGTH_SHORT).show();
-                        break;
-                    }
-                    data.moveToNext();
-                }
-            }
-
-            if (data == null || data.getCount() == 0
-                    || (data.getCount() > 0 && data.isAfterLast())) {
-                // If we have reached the last index without having encountered any duplicates
-                // of the product code field, then the new item can be inserted into the database.
-                insertNewItem();
-            }
-        }
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
-        if (loader.getId() == EDITOR_MODE_LOADER_ID) {
-
-            // Clear all data fields
-            mNameEditText.setText("");
-            mCodeEditText.setText("");
-            mQuantityText.setText("");
-            mPriceEditText.setText("");
-            mSupplierEditText.setText("");
-            mSupplierEMailEditText.setText("");
-            mImpendingOrdersText.setText("");
-            mPicture.setImageBitmap(null);
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -344,6 +225,7 @@ public class EditorActivity extends AppCompatActivity
         }
     }
 
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -384,21 +266,17 @@ public class EditorActivity extends AppCompatActivity
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
-        // The ACTION_OPEN_DOCUMENT intent was sent with the request code READ_REQUEST_CODE.
-        // If the request code seen here doesn't match, it's the response to some other intent,
-        // and the below code shouldn't run at all.
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
-            // The document selected by the user won't be returned in the intent.
-            // Instead, a URI to that document will be contained in the return intent
-            // provided to this method as a parameter.  Pull that uri using "resultData.getData()"
-
             if (resultData != null) {
-                Uri selectedUri = resultData.getData();
+                // The URI of the image picked by the user is attached to the intent "resultData".
+                // Pull the URI by calling resultData.getData().
+                Uri selectedImageUri = resultData.getData();
+                // Retrieve the image associated with this URI and store it as a bitmap.
                 try {
-                    Bitmap bitmap = getBitmapFromUri(selectedUri);
+                    Bitmap bitmap = getBitmapFromUri(selectedImageUri);
                     if (bitmap != null) {
-                        mPictureUri = selectedUri;
+                        mPictureUri = selectedImageUri;
                         // Update item picture in the UI
                         mPicture.setImageBitmap(bitmap);
                         mImageHasBeenDeleted = false; // We reinitialize this boolean to false
@@ -419,6 +297,131 @@ public class EditorActivity extends AppCompatActivity
             }
         }
     }
+
+
+    /**
+     * Implementation of the {@link LoaderManager.LoaderCallbacks} interface.
+     * The cursor loader returns the results of a database query for a specific row.
+     */
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
+        if (id == EDITOR_MODE_LOADER_ID) {
+
+            // Retrieve all fields for the current item
+            String[] projection = new String[]{InventoryEntry._ID, InventoryEntry.COLUMN_NAME,
+                    InventoryEntry.COLUMN_CODE, InventoryEntry.COLUMN_PRICE,
+                    InventoryEntry.COLUMN_QUANTITY, InventoryEntry.COLUMN_PICTURE_URI,
+                    InventoryEntry.COLUMN_SUPPLIER_NAME, InventoryEntry.COLUMN_SUPPLIER_MAIL,
+                    InventoryEntry.COLUMN_IMPENDING_ORDERS};
+
+            return new CursorLoader(this, mCurrentUri, projection, null, null, null);
+
+        } else if (id == INSERT_MODE_LOADER_ID) {
+
+            // Retrieve all product codes already present in the database
+            String[] projection = new String[]{InventoryEntry.COLUMN_CODE};
+
+            return new CursorLoader(this, InventoryEntry.CONTENT_URI, projection, null, null, null);
+        }
+
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+        if (loader.getId() == EDITOR_MODE_LOADER_ID) {
+
+            // Bail early if the cursor is null or there is less than 1 row in the cursor
+            if (data == null || data.getCount() < 1) {
+                return;
+            }
+
+            data.moveToFirst();
+
+            String name = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_NAME));
+            String code = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_CODE));
+            String stringPrice = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_PRICE));
+            String stringQuantity = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_QUANTITY));
+            String pictureUri = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_PICTURE_URI));
+            String supplier = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_SUPPLIER_NAME));
+            String email = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_SUPPLIER_MAIL));
+            String stringImpendingOrders =
+                    data.getString(data.getColumnIndex(InventoryEntry.COLUMN_IMPENDING_ORDERS));
+
+            mNameEditText.setText(name);
+            mCodeEditText.setText(code);
+            mPriceEditText.setText(stringPrice);
+            mQuantityText.setText(stringQuantity);
+            mSupplierEditText.setText(supplier);
+            mSupplierEMailEditText.setText(email);
+            mImpendingOrdersText.setText(stringImpendingOrders);
+
+            if (pictureUri != null) {
+                mPictureUri = Uri.parse(pictureUri);
+                try {
+                    Bitmap bitmap = getBitmapFromUri(mPictureUri);
+                    if (bitmap != null) {
+                        mPicture.setImageBitmap(bitmap);
+
+                    } else {
+                        mPicture.setImageResource(R.drawable.no_image_available);
+                    }
+
+                } catch (IOException e) {
+                    Log.e(LOG_TAG, "Problem retrieving the image. ", e);
+                }
+
+            } else {
+                mPicture.setImageResource(R.drawable.no_image_available);
+            }
+
+        } else if (loader.getId() == INSERT_MODE_LOADER_ID) {
+
+            if (data != null && data.getCount() > 0) {
+
+                data.moveToFirst();
+                while (!data.isAfterLast()) {
+                    String code = data.getString(data.getColumnIndex(InventoryEntry.COLUMN_CODE));
+                    if ((code.toLowerCase()).equals
+                            (mCodeEditText.getText().toString().trim().toLowerCase())) {
+                        // If item is a duplicate, it must not be saved into the database!
+                        // Break the loop and display a warning message to the user.
+                        Toast.makeText(this, getString(R.string.duplicate_item),
+                                Toast.LENGTH_SHORT).show();
+                        break;
+                    }
+                    data.moveToNext();
+                }
+            }
+
+            if (data == null || data.getCount() == 0
+                    || (data.getCount() > 0 && data.isAfterLast())) {
+                // If we have reached the last index without having encountered any duplicates
+                // of the product code field, then the new item can be inserted into the database.
+                insertNewItem();
+            }
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
+        if (loader.getId() == EDITOR_MODE_LOADER_ID) {
+
+            // Clear all data fields
+            mNameEditText.setText("");
+            mCodeEditText.setText("");
+            mQuantityText.setText("");
+            mPriceEditText.setText("");
+            mSupplierEditText.setText("");
+            mSupplierEMailEditText.setText("");
+            mImpendingOrdersText.setText("");
+            mPicture.setImageBitmap(null);
+        }
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -683,6 +686,19 @@ public class EditorActivity extends AppCompatActivity
         }
     }
 
+    public void openImageSelector() {
+        Intent intent;
+
+        if (Build.VERSION.SDK_INT < 19) {
+            intent = new Intent(Intent.ACTION_GET_CONTENT);
+        } else {
+            intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+        }
+
+        intent.setType("image/*");
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+    }
 
     // Helper method to load a bitmap image from a given URI
     private Bitmap getBitmapFromUri(Uri uri) throws IOException {
@@ -724,19 +740,5 @@ public class EditorActivity extends AppCompatActivity
         }
 
         return bitmap;
-    }
-
-    public void openImageSelector() {
-        Intent intent;
-
-        if (Build.VERSION.SDK_INT < 19) {
-            intent = new Intent(Intent.ACTION_GET_CONTENT);
-        } else {
-            intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-        }
-
-        intent.setType("image/*");
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
     }
 }
