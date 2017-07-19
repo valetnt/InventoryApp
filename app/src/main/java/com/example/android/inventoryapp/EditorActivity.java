@@ -44,15 +44,20 @@ import java.io.InputStream;
 public class EditorActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    // Tag for the loader used in edit-item mode
+    // Tag for the cursor loader used in edit-item mode to retrieve data related to the current item
     public static final int EDITOR_MODE_LOADER_ID = 1;
-    // Tag for the loader used in insert-new-item mode
+
+    // Tag for the cursor loader used in insert-new-item mode to check that the product code of the
+    // new item is not a duplicate (if it is, the item must not be inserted into the database)
     public static final int INSERT_MODE_LOADER_ID = 2;
-    // Tag for receiving
+
+    // Tag for receiving an intent containing the URI of the image picked by the user
     private static final int PICK_IMAGE_REQUEST = 0;
+
+    // Tag for printing Log messages
     private static final String LOG_TAG = EditorActivity.class.getSimpleName();
 
-    // Constant values for storing key-value pairs to support device rotation
+    // Constant values for storing key-value pairs to save/restore instance states
     private static final String QUANTITY = "number of items in stock";
     private static final String IMAGE_URI = "URI of the image";
     private static final String IMAGE = "resized bitmap";
@@ -72,11 +77,11 @@ public class EditorActivity extends AppCompatActivity
     private boolean mImageHasBeenDeleted = false;
     private boolean mDataHasChanged = false;
 
-    // Uri of the item we want to edit in edit mode
-    private Uri mCurrentUri;
+    // Uri of the item we want to edit in edit-item mode
+    private Uri mCurrentItemUri;
 
     /**
-     * Implementation of OnTouchListener interface to detect changes of editable fields
+     * Implementation of View.OnTouchListener interface to detect changes of editable fields.
      */
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
         @Override
@@ -85,7 +90,6 @@ public class EditorActivity extends AppCompatActivity
             return false;
         }
     };
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,8 +150,15 @@ public class EditorActivity extends AppCompatActivity
             }
         });
 
-        mCurrentUri = getIntent().getData();
-        if (mCurrentUri == null) {
+        // The EditorActivity is always launched from the CatalogActivity.
+        // It can be launched either in INSERT-NEW-ITEM mode (if the user clicks the floating
+        // action button to add a new item) or in EDIT-ITEM mode (if the user clicks one of the
+        // catalog list items). In the former case, the intent does NOT contain any data, while
+        // in the latter case the intent contains the
+        //
+
+        mCurrentItemUri = getIntent().getData();
+        if (mCurrentItemUri == null) {
             // If we are in insert-new-item mode
             getSupportActionBar().setTitle(getString(R.string.editor_activity_title_new_item));
 
@@ -274,22 +285,15 @@ public class EditorActivity extends AppCompatActivity
                 Uri selectedImageUri = resultData.getData();
                 // Retrieve the image associated with this URI and store it as a bitmap.
                 try {
-                    Bitmap bitmap = getBitmapFromUri(selectedImageUri);
-                    if (bitmap != null) {
+                    mBitmap = getBitmapFromUri(selectedImageUri);
+                    if (mBitmap != null) {
                         mPictureUri = selectedImageUri;
                         // Update item picture in the UI
-                        mPicture.setImageBitmap(bitmap);
+                        mPicture.setImageBitmap(mBitmap);
                         mImageHasBeenDeleted = false; // We reinitialize this boolean to false
 
-                        // Update database, only if in editor-mode
-                        if (mCurrentUri != null) {
-                            updateItem();
-
-                        } else {
-                            // Store bitmap so that we can rotate the device without
-                            // losing the image. Database is NOT updated until the user saves.
-                            mBitmap = bitmap;
-                        }
+                    } else {
+                        mPicture.setImageResource(R.drawable.no_image_available);
                     }
                 } catch (IOException e) {
                     Log.e(LOG_TAG, "Problem retrieving the image. ", e);
@@ -315,7 +319,7 @@ public class EditorActivity extends AppCompatActivity
                     InventoryEntry.COLUMN_SUPPLIER_NAME, InventoryEntry.COLUMN_SUPPLIER_MAIL,
                     InventoryEntry.COLUMN_IMPENDING_ORDERS};
 
-            return new CursorLoader(this, mCurrentUri, projection, null, null, null);
+            return new CursorLoader(this, mCurrentItemUri, projection, null, null, null);
 
         } else if (id == INSERT_MODE_LOADER_ID) {
 
@@ -435,7 +439,7 @@ public class EditorActivity extends AppCompatActivity
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         // If this is a new item, hide the "Delete" menu item.
-        if (mCurrentUri == null) {
+        if (mCurrentItemUri == null) {
             MenuItem menuItem = menu.findItem(R.id.action_delete);
             menuItem.setVisible(false);
         }
@@ -557,7 +561,7 @@ public class EditorActivity extends AppCompatActivity
 
     private void saveItem() {
 
-        if (mCurrentUri == null) { // If we are in insert-new-item mode
+        if (mCurrentItemUri == null) { // If we are in insert-new-item mode
 
             // Before saving the new item into the database, we must first check that its
             // product code has not been already used (i.e. that the item is not a duplicate).
@@ -609,7 +613,7 @@ public class EditorActivity extends AppCompatActivity
         if (values != null) {
             // Update item
             ContentResolver contentResolver = getContentResolver();
-            int rowUpdated = contentResolver.update(mCurrentUri, values, null, null);
+            int rowUpdated = contentResolver.update(mCurrentItemUri, values, null, null);
 
             // Show a toast message depending on whether or not the updating was successful
             if (rowUpdated == 1) {
@@ -668,10 +672,10 @@ public class EditorActivity extends AppCompatActivity
 
     private void deleteItem() {
 
-        if (mCurrentUri != null) { // If we are in editor mode
+        if (mCurrentItemUri != null) { // If we are in editor mode
 
             ContentResolver contentResolver = getContentResolver();
-            int rowDeleted = contentResolver.delete(mCurrentUri, null, null);
+            int rowDeleted = contentResolver.delete(mCurrentItemUri, null, null);
 
             // Show a toast message depending on whether or not deleting was successful
             if (rowDeleted == 1) {

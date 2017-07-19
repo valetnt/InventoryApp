@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v4.widget.CursorAdapter;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,8 +18,6 @@ import com.example.android.inventoryapp.data.InventoryContract.InventoryEntry;
 
 
 public class InventoryCursorAdapter extends CursorAdapter {
-
-    private static final String LOG_TAG = InventoryCursorAdapter.class.getSimpleName();
 
     /**
      * Constructs a new {@link InventoryCursorAdapter}
@@ -94,26 +91,17 @@ public class InventoryCursorAdapter extends CursorAdapter {
         View buttonSell = view.findViewById(R.id.button_sell);
         View buttonEdit = view.findViewById(R.id.button_edit);
 
-
-        buttonEdit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent openEditor = new Intent(v.getContext(), EditorActivity.class);
-                openEditor.setData(currentUri);
-                v.getContext().startActivity(openEditor);
-            }
-        });
-
-
+        // The SELL button allows the user to sell one unit, diminishing by 1 the quantity in stock
         buttonSell.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int quantity = Integer.parseInt(quantityTextView.getText().toString());
-                if (quantity > 0) {
-                    quantity--;
+                if (quantity > 0) { // Item can be sold only if there is at least 1 unit in stock
+
+                    quantity--; // Quantity in stock decreases by 1 unit
                     quantityTextView.setText(String.valueOf(quantity));
 
-                    // Update item in database
+                    // Update database with the new quantity in stock
                     ContentValues values = new ContentValues();
                     values.put(InventoryEntry.COLUMN_QUANTITY, quantity);
                     ContentResolver contentResolver = v.getContext().getContentResolver();
@@ -131,10 +119,21 @@ public class InventoryCursorAdapter extends CursorAdapter {
                                 v.getContext().getString(R.string.label_item_selling_failed),
                                 Toast.LENGTH_SHORT).show();
                     }
-
                 }
             }
 
+        });
+
+        // The EDIT "button" corresponds in fact to the whole list item view, except the SELL button
+        buttonEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent openEditor = new Intent(v.getContext(), EditorActivity.class);
+                // Attach the URI of the selected item to the intent
+                openEditor.setData(currentUri);
+                // Launch EditorActivity (in EDIT mode)
+                v.getContext().startActivity(openEditor);
+            }
         });
     }
 }

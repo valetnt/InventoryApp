@@ -16,19 +16,19 @@ import com.example.android.inventoryapp.data.InventoryContract.InventoryEntry;
 public class CatalogActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    // Tag for the cursor loader used to retrieve basic item information
     public static final int CATALOG_LOADER_ID = 0;
-    private static final String LOG_TAG = CatalogActivity.class.getSimpleName();
     private InventoryCursorAdapter mCursorAdapter;
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         /*
          * Create a CursorLoader that queries inventory database for:
-         * item _id, name, picture, product code, price and quantity in stock
+         * item _id, name, product code, price and quantity in stock
          */
         String[] projection = new String[]{InventoryEntry._ID, InventoryEntry.COLUMN_NAME,
-                InventoryEntry.COLUMN_PICTURE_URI, InventoryEntry.COLUMN_CODE,
-                InventoryEntry.COLUMN_PRICE, InventoryEntry.COLUMN_QUANTITY};
+                InventoryEntry.COLUMN_CODE, InventoryEntry.COLUMN_PRICE,
+                InventoryEntry.COLUMN_QUANTITY};
 
         return new CursorLoader(this, InventoryEntry.CONTENT_URI, projection, null, null, null);
     }
@@ -56,6 +56,7 @@ public class CatalogActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(CatalogActivity.this, EditorActivity.class);
+                // Launch EditorActivity (in INSERT-NEW-ITEM mode)
                 startActivity(intent);
             }
         });
@@ -65,7 +66,7 @@ public class CatalogActivity extends AppCompatActivity
         listView.setEmptyView(emptyView);
 
         mCursorAdapter = new InventoryCursorAdapter(this, null);
-        // Set an instance of PetCursorAdapter onto the ListView
+        // Set an instance of InventoryCursorAdapter onto the ListView
         listView.setAdapter(mCursorAdapter);
 
         // Initialize the cursor loader
