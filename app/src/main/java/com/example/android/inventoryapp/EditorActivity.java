@@ -201,13 +201,11 @@ public class EditorActivity extends AppCompatActivity
                         builder.setPositiveButton(R.string.confirm_image_deletion,
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
-
                                         // User clicked the "Delete" button, so delete the image.
                                         mPicture.setImageResource(R.drawable.no_image_available);
                                         mImageHasBeenDeleted = true;
-                                        // Update database
                                         mPictureUri = null;
-                                        updateItem();
+                                        mBitmap = null;
                                     }
                                 });
                         builder.setNegativeButton(R.string.cancel_image_deletion,
@@ -247,7 +245,6 @@ public class EditorActivity extends AppCompatActivity
         }
     }
 
-
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -255,9 +252,13 @@ public class EditorActivity extends AppCompatActivity
         outState.putInt(QUANTITY, Integer.parseInt(mQuantityText.getText().toString()));
         outState.putBoolean(BOOLEAN_DATA_CHANGED, mDataHasChanged);
         outState.putBoolean(BOOLEAN_IMAGE_DELETED, mImageHasBeenDeleted);
+
         if (mPictureUri != null) {
             outState.putString(IMAGE_URI, mPictureUri.toString());
+        } else {
+            outState.putString(IMAGE_URI, null);
         }
+
         if (mBitmap != null) {
             Parcel parcel = Parcel.obtain();
             mBitmap.writeToParcel(parcel, 0);
@@ -273,13 +274,13 @@ public class EditorActivity extends AppCompatActivity
 
         mQuantityText.setText(String.valueOf(savedInstanceState.getInt(QUANTITY)));
         mDataHasChanged = savedInstanceState.getBoolean(BOOLEAN_DATA_CHANGED);
-        if (savedInstanceState.containsKey(IMAGE_URI)) {
-            mPictureUri = Uri.parse(savedInstanceState.getString(IMAGE_URI));
-        }
+        mPictureUri = Uri.parse(savedInstanceState.getString(IMAGE_URI));
+
         mImageHasBeenDeleted = savedInstanceState.getBoolean(BOOLEAN_IMAGE_DELETED);
         if (mImageHasBeenDeleted) {
             mPicture.setImageResource(R.drawable.no_image_available);
         }
+
         if (savedInstanceState.containsKey(IMAGE)) {
             mBitmap = savedInstanceState.getParcelable(IMAGE);
             mPicture.setImageBitmap(mBitmap);
@@ -291,9 +292,11 @@ public class EditorActivity extends AppCompatActivity
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
             if (resultData != null) {
+
                 // The URI of the image picked by the user is attached to the intent "resultData".
                 // Pull the URI by calling resultData.getData().
                 Uri selectedImageUri = resultData.getData();
+
                 // Retrieve the image associated with this URI and store it as a bitmap.
                 try {
                     mBitmap = getBitmapFromUri(selectedImageUri);
@@ -305,6 +308,7 @@ public class EditorActivity extends AppCompatActivity
 
                     } else {
                         mPicture.setImageResource(R.drawable.no_image_available);
+                        mPictureUri = null;
                     }
                 } catch (IOException e) {
                     Log.e(LOG_TAG, "Problem retrieving the image. ", e);
@@ -312,7 +316,6 @@ public class EditorActivity extends AppCompatActivity
             }
         }
     }
-
 
     /**
      * Implementation of the {@link LoaderManager.LoaderCallbacks} interface.
@@ -373,12 +376,13 @@ public class EditorActivity extends AppCompatActivity
             mSupplierEMailEditText.setText(email);
             mImpendingOrdersText.setText(stringImpendingOrders);
 
+            mBitmap = null;
             if (pictureUri != null) {
                 mPictureUri = Uri.parse(pictureUri);
                 try {
-                    Bitmap bitmap = getBitmapFromUri(mPictureUri);
-                    if (bitmap != null) {
-                        mPicture.setImageBitmap(bitmap);
+                    mBitmap = getBitmapFromUri(mPictureUri);
+                    if (mBitmap != null) {
+                        mPicture.setImageBitmap(mBitmap);
 
                     } else {
                         mPicture.setImageResource(R.drawable.no_image_available);
@@ -390,6 +394,7 @@ public class EditorActivity extends AppCompatActivity
 
             } else {
                 mPicture.setImageResource(R.drawable.no_image_available);
+                mPictureUri = null;
             }
 
         } else if (loader.getId() == INSERT_MODE_LOADER_ID) {
@@ -434,6 +439,8 @@ public class EditorActivity extends AppCompatActivity
             mSupplierEMailEditText.setText("");
             mImpendingOrdersText.setText("");
             mPicture.setImageBitmap(null);
+            mPictureUri = null;
+            mBitmap = null;
         }
     }
 
@@ -473,7 +480,7 @@ public class EditorActivity extends AppCompatActivity
             // Respond to a click on the "Up" arrow button in the app bar
             case android.R.id.home:
                 // If the data hasn't changed, continue with navigating up to parent activity
-                // which is the {@link CatalogActivity}.
+                // which is the CatalogActivity.
                 if (!mDataHasChanged) {
                     NavUtils.navigateUpFromSameTask(EditorActivity.this);
                     return true;
@@ -570,9 +577,12 @@ public class EditorActivity extends AppCompatActivity
         alertDialog.show();
     }
 
+    /**
+     * Insert or update item according to whether we are in INSERT-NEW-ITEM or EDIT-ITEM mode.
+     */
     private void saveItem() {
 
-        if (mCurrentItemUri == null) { // If we are in insert-new-item mode
+        if (mCurrentItemUri == null) { // If we are in INSERT-NEW-ITEM mode
 
             // Before saving the new item into the database, we must first check that its
             // product code has not been already used (i.e. that the item is not a duplicate).
@@ -581,14 +591,21 @@ public class EditorActivity extends AppCompatActivity
             LoaderManager loaderManager = getSupportLoaderManager();
             loaderManager.initLoader(INSERT_MODE_LOADER_ID, null, this);
 
-        } else { // If we are in edit-existing-item mode
+        } else { // If we are in EDIT-ITEM mode
             updateItem();
             finish();
         }
     }
 
+    /**
+     * Insert new item into the database.
+     */
     private void insertNewItem() {
-
+        /*
+         * Create a ContentValues object by calling method checkContentValuesToSave().
+         * If method returns null, it means that the ContentValues object is invalid, so
+         * don't try to insert it into the database.
+         */
         ContentValues values = checkContentValuesToSave();
         if (values != null) {
             // Insert new item into the database
@@ -608,18 +625,20 @@ public class EditorActivity extends AppCompatActivity
 
             // Terminate the activity
             finish();
-            // Now that the item has been saved into the database, we can discard the bitmap.
-            // This will release some memory space.
-            if (mBitmap != null) {
-                mBitmap = null;
-            }
             // Destroy the loader
             getSupportLoaderManager().destroyLoader(INSERT_MODE_LOADER_ID);
         }
     }
 
+    /**
+     * Update database at the URI of the current item.
+     */
     private void updateItem() {
-
+        /*
+         * Create a ContentValues object by calling method checkContentValuesToSave().
+         * If method returns null, it means that the ContentValues object is invalid, so
+         * don't try to update the database.
+         */
         ContentValues values = checkContentValuesToSave();
         if (values != null) {
             // Update item
@@ -637,6 +656,13 @@ public class EditorActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Helper method that checks that we are inserting or editing an item in compliance with
+     * the table schema defined in {@link com.example.android.inventoryapp.data.InventoryDBHelper}.
+     * If the constraints are complied with, this method returns a ContentValues object
+     * that can be safely fed to the database without causing app to crash.
+     * Else it returns null and warns the user that some fields need modifications.
+     */
     private ContentValues checkContentValuesToSave() {
 
         String item_name = mNameEditText.getText().toString().trim();
@@ -671,9 +697,7 @@ public class EditorActivity extends AppCompatActivity
         values.put(InventoryEntry.COLUMN_IMPENDING_ORDERS, impending_orders);
 
         if (mPictureUri != null) {
-            String pictureUri = mPictureUri.toString();
-            values.put(InventoryEntry.COLUMN_PICTURE_URI, pictureUri);
-
+            values.put(InventoryEntry.COLUMN_PICTURE_URI, mPictureUri.toString());
         } else {
             values.put(InventoryEntry.COLUMN_PICTURE_URI, (String) null);
         }
@@ -681,9 +705,12 @@ public class EditorActivity extends AppCompatActivity
         return values;
     }
 
+    /*
+     * Delete current item
+     */
     private void deleteItem() {
 
-        if (mCurrentItemUri != null) { // If we are in editor mode
+        if (mCurrentItemUri != null) { // If we are in EDIT-ITEM mode
 
             ContentResolver contentResolver = getContentResolver();
             int rowDeleted = contentResolver.delete(mCurrentItemUri, null, null);
@@ -701,6 +728,9 @@ public class EditorActivity extends AppCompatActivity
         }
     }
 
+    /*
+     * Open image selector to allow the user to pick a picture for the item
+     */
     public void openImageSelector() {
         Intent intent;
 
@@ -715,7 +745,12 @@ public class EditorActivity extends AppCompatActivity
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
     }
 
-    // Helper method to load a bitmap image from a given URI
+    /*
+     * Helper method to load a bitmap image from a given URI.
+     * Contains an excerpt from
+     * https://github.com/crlsndrsjmnz/MyShareImageExample/blob/master/app/src/main/java/co/carlosandresjimenez/android/myshareimageexample/MainActivity.java
+     * about how to load a bitmap image from a given URI.
+     */
     private Bitmap getBitmapFromUri(Uri uri) throws IOException {
 
         Bitmap bitmap = null;
