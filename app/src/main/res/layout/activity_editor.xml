@@ -119,25 +119,27 @@
 
             <!-- Input Field -->
             <RelativeLayout
-                android:id="@+id/editor_in_stock"
+                android:id="@+id/editor_quantity_in_stock"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="2">
 
-                <!-- View for Uneditable Field -->
-                <TextView
-                    android:id="@+id/uneditable_view_in_stock"
-                    style="@style/SpecifyFieldLabelStyle"
+                <!-- View for insert-new-item mode -->
+                <EditText
+                    android:id="@+id/insert_mode_view"
+                    style="@style/EditorFieldStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:padding="@dimen/editor_small_margin"
-                    android:text="@string/specify_field"
+                    android:layout_marginLeft="@dimen/editor_smaller_margin"
+                    android:layout_marginStart="@dimen/editor_smaller_margin"
+                    android:hint="@string/hint_item_quantity_in_stock"
+                    android:inputType="number"
                     android:visibility="gone" />
 
-                <!-- View for Editable Field -->
+                <!-- View for edit-item mode -->
                 <LinearLayout
-                    android:id="@+id/editable_view_in_stock"
+                    android:id="@+id/edit_mode_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"

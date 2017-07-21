@@ -35,8 +35,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static android.R.attr.data;
-
 /*
  * This code contains a short excerpt adapted from
  * https://github.com/crlsndrsjmnz/MyShareImageExample/blob/master/app/src/main/java/co/carlosandresjimenez/android/myshareimageexample/MainActivity.java
@@ -64,8 +62,6 @@ public class EditorActivity extends AppCompatActivity
     private static final String IMAGE_URI = "URI of the image";
     private static final String IMAGE = "resized bitmap";
     private static final String BOOLEAN_IMAGE_INSERTED = "true if an image has been picked";
-    private static final String BOOLEAN_QUANTITY_IN_STOCK_EDITABLE = "true if field QUANTITY_IN_STOCK"
-            + " is editable";
     private static final String BOOLEAN_DATA_CHANGED = "true if one of editable fields touched";
 
     private EditText mNameEditText;
@@ -78,14 +74,10 @@ public class EditorActivity extends AppCompatActivity
     private ImageView mPicture;
     private Uri mPictureUri;
     private Bitmap mBitmap;
-    private View mEnabledEditor;
-    private View mDisabledEditor;
+    private EditText mQuantityEditText;
 
     private boolean mDataHasChanged = false;
-
-    // Variables used only in insert-mode
-    private boolean mImageHasBeenInserted = false;
-    private boolean mQuantityInStockIsEditable = false;
+    private boolean mImageHasBeenInserted = false; // variable used only in insert-new-item mode
 
     // Uri of the item we want to edit in edit-item mode
     private Uri mCurrentItemUri;
@@ -110,9 +102,8 @@ public class EditorActivity extends AppCompatActivity
         mCodeEditText = (EditText) findViewById(R.id.item_product_code);
         mPriceEditText = (EditText) findViewById(R.id.item_price);
         mQuantityText = (TextView) findViewById(R.id.item_quantity_in_stock);
-        View quantityEditor = findViewById(R.id.editor_in_stock);
-        mEnabledEditor = findViewById(R.id.editable_view_in_stock);
-        mDisabledEditor = findViewById(R.id.uneditable_view_in_stock);
+        mQuantityEditText = (EditText) findViewById(R.id.insert_mode_view);
+        View quantityLinearLayout = findViewById(R.id.edit_mode_view);
         mSupplierEditText = (EditText) findViewById(R.id.item_supplier_name);
         mSupplierEMailEditText = (EditText) findViewById(R.id.item_supplier_email);
         mImpendingOrdersText = (EditText) findViewById(R.id.number_of_items_ordered);
@@ -184,27 +175,20 @@ public class EditorActivity extends AppCompatActivity
             buttonOrder.setVisibility(View.GONE); // You cannot order an item that hasn't been
             // created yet.
 
-            mEnabledEditor.setVisibility(View.GONE);
-            mDisabledEditor.setVisibility(View.VISIBLE);
-            quantityEditor.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-
-                    if (!mQuantityInStockIsEditable) {
-                        mQuantityInStockIsEditable = true;
-                        mEnabledEditor.setVisibility(View.VISIBLE);
-                        mQuantityText.setText("0");
-                        mDisabledEditor.setVisibility(View.GONE);
-                        return true;
-                    }
-                    return false;
-                }
-            });
+            quantityLinearLayout.setVisibility(View.GONE);
+            mQuantityEditText.setVisibility(View.VISIBLE);
+            buttonDecreaseQuantity.setEnabled(false);
+            buttonIncreaseQuantity.setEnabled(false);
 
         } else {
             // If we are in EDIT-ITEM mode
 
             getSupportActionBar().setTitle(getString(R.string.editor_activity_title_edit_item));
+
+            quantityLinearLayout.setVisibility(View.VISIBLE);
+            mQuantityEditText.setVisibility(View.GONE);
+            buttonDecreaseQuantity.setEnabled(true);
+            buttonIncreaseQuantity.setEnabled(true);
 
             // Product code cannot be edited. If the user has inserted an item with
             // the wrong product code, he cannot correct it, but instead he has to
@@ -237,10 +221,11 @@ public class EditorActivity extends AppCompatActivity
 
         outState.putBoolean(BOOLEAN_DATA_CHANGED, mDataHasChanged);
         outState.putBoolean(BOOLEAN_IMAGE_INSERTED, mImageHasBeenInserted);
-        outState.putBoolean(BOOLEAN_QUANTITY_IN_STOCK_EDITABLE, mQuantityInStockIsEditable);
 
-        if (mCurrentItemUri != null || mQuantityInStockIsEditable) {
-            outState.putInt(QUANTITY, Integer.parseInt(mQuantityText.getText().toString()));
+        if (mCurrentItemUri != null) {
+            outState.putString(QUANTITY, mQuantityText.getText().toString());
+        } else {
+            outState.putString(QUANTITY, mQuantityEditText.getText().toString());
         }
 
         if (mPictureUri != null) {
@@ -262,19 +247,10 @@ public class EditorActivity extends AppCompatActivity
 
         mDataHasChanged = savedInstanceState.getBoolean(BOOLEAN_DATA_CHANGED);
 
-        if (savedInstanceState.containsKey(QUANTITY)) {
-            mQuantityText.setText(String.valueOf(savedInstanceState.getInt(QUANTITY)));
-        }
-
-        mQuantityInStockIsEditable = savedInstanceState.getBoolean(BOOLEAN_QUANTITY_IN_STOCK_EDITABLE);
-        if (mCurrentItemUri == null) {
-            if (mQuantityInStockIsEditable) {
-                mEnabledEditor.setVisibility(View.VISIBLE);
-                mDisabledEditor.setVisibility(View.GONE);
-            } else {
-                mEnabledEditor.setVisibility(View.GONE);
-                mDisabledEditor.setVisibility(View.VISIBLE);
-            }
+        if (mCurrentItemUri != null) {
+            mQuantityText.setText(savedInstanceState.getString(QUANTITY));
+        } else {
+            mQuantityEditText.setText(savedInstanceState.getString(QUANTITY));
         }
 
         mImageHasBeenInserted = savedInstanceState.getBoolean(BOOLEAN_IMAGE_INSERTED);
@@ -681,7 +657,14 @@ public class EditorActivity extends AppCompatActivity
         String item_name = mNameEditText.getText().toString().trim();
         String item_code = mCodeEditText.getText().toString().trim();
         String item_price = mPriceEditText.getText().toString().trim();
-        String quantity = mQuantityText.getText().toString().trim();
+
+        String quantity;
+        if (mCurrentItemUri != null) {
+            quantity = mQuantityText.getText().toString().trim();
+        } else {
+            quantity = mQuantityEditText.getText().toString().trim();
+        }
+
         String supplier_name = mSupplierEditText.getText().toString().trim();
         String supplier_email = mSupplierEMailEditText.getText().toString().trim();
         String impending_orders = mImpendingOrdersText.getText().toString().trim();

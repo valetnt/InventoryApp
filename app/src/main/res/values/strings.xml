@@ -27,7 +27,7 @@
     <string name="hint_item_price">Price in cents</string>
 
     <!-- Text hint for "quantity-in-stock" field in the editor [CHAR LIMIT=30] -->
-    <string name="hint_item_quantity_in_stock">Quantity in stock</string>
+    <string name="hint_item_quantity_in_stock">Nr. of items in stock</string>
 
     <!-- Label for button to sell item -->
     <string name="label_item_sell">Sell</string>
@@ -126,8 +126,5 @@
 
     <!-- Dialog button text for the option to keep editing the current item [CHAR LIMIT=20] -->
     <string name="keep_editing">Keep Editing</string>
-
-    <!-- Generic label for prompting user to specify a field [CHAR LIMIT=30] -->
-    <string name="specify_field">Touch to insert number</string>
 
 </resources>
