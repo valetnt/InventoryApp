@@ -66,6 +66,12 @@
         <item name="android:textAppearance">?android:textAppearanceMedium</item>
     </style>
 
+    <!-- Style for label prompting user to specify a field -->
+    <style name="SpecifyFieldLabelStyle" parent="EditorTheme">
+        <item name="android:textAppearance">?android:textAppearanceSmall</item>
+        <item name="android:textStyle">italic</item>
+    </style>
+
     <!-- Style for Order Button in the editor -->
     <style name="OrderButtonStyle" parent="EditorTheme">
         <item name="android:textAppearance">?android:textAppearanceSmall</item>

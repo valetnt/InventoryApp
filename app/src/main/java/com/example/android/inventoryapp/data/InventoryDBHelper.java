@@ -15,12 +15,12 @@ public class InventoryDBHelper extends SQLiteOpenHelper {
             + InventoryEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + InventoryEntry.COLUMN_NAME + " TEXT NOT NULL, "
             + InventoryEntry.COLUMN_CODE + " TEXT NOT NULL, "
-            + InventoryEntry.COLUMN_PRICE + " INTEGER, "
-            + InventoryEntry.COLUMN_QUANTITY + " INTEGER NOT NULL DEFAULT 0, "
-            + InventoryEntry.COLUMN_PICTURE_URI + " TEXT, "
+            + InventoryEntry.COLUMN_PRICE + " INTEGER NOT NULL, "
+            + InventoryEntry.COLUMN_QUANTITY + " INTEGER NOT NULL, "
+            + InventoryEntry.COLUMN_PICTURE_URI + " TEXT NOT NULL, "
             + InventoryEntry.COLUMN_SUPPLIER_NAME + " TEXT, "
             + InventoryEntry.COLUMN_SUPPLIER_MAIL + " TEXT, "
-            + InventoryEntry.COLUMN_IMPENDING_ORDERS + " INTEGER NOT NULL DEFAULT 0);" ;
+            + InventoryEntry.COLUMN_IMPENDING_ORDERS + " INTEGER NOT NULL);";
 
     public static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " +
             InventoryEntry.TABLE_NAME + ";";

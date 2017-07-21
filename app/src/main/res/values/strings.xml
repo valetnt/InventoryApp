@@ -109,15 +109,6 @@
     <string name="duplicate_item">Another item with the same product code already exists in this
         database</string>
 
-    <!-- Dialog message for asking the user if he wants to delete the image -->
-    <string name="delete_image_dialog_msg">Delete image?</string>
-
-    <!-- Dialog button text for the option of canceling image deletion [CHAR LIMIT=20] -->
-    <string name="cancel_image_deletion">Cancel</string>
-
-    <!-- Dialog button text for the option of confirming image deletion [CHAR LIMIT=20] -->
-    <string name="confirm_image_deletion">Delete</string>
-
     <!-- Dialog message to ask the user to confirm deleting the current item [CHAR LIMIT=NONE] -->
     <string name="delete_dialog_msg">Delete this item?</string>
 
@@ -135,4 +126,8 @@
 
     <!-- Dialog button text for the option to keep editing the current item [CHAR LIMIT=20] -->
     <string name="keep_editing">Keep Editing</string>
+
+    <!-- Generic label for prompting user to specify a field [CHAR LIMIT=30] -->
+    <string name="specify_field">Touch to insert number</string>
+
 </resources>

@@ -35,6 +35,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static android.R.attr.data;
+
 /*
  * This code contains a short excerpt adapted from
  * https://github.com/crlsndrsjmnz/MyShareImageExample/blob/master/app/src/main/java/co/carlosandresjimenez/android/myshareimageexample/MainActivity.java
@@ -62,7 +64,8 @@ public class EditorActivity extends AppCompatActivity
     private static final String IMAGE_URI = "URI of the image";
     private static final String IMAGE = "resized bitmap";
     private static final String BOOLEAN_IMAGE_INSERTED = "true if an image has been picked";
-    private static final String BOOLEAN_IMAGE_DELETED = "true if the image has been deleted";
+    private static final String BOOLEAN_QUANTITY_IN_STOCK_EDITABLE = "true if field QUANTITY_IN_STOCK"
+            + " is editable";
     private static final String BOOLEAN_DATA_CHANGED = "true if one of editable fields touched";
 
     private EditText mNameEditText;
@@ -75,10 +78,14 @@ public class EditorActivity extends AppCompatActivity
     private ImageView mPicture;
     private Uri mPictureUri;
     private Bitmap mBitmap;
+    private View mEnabledEditor;
+    private View mDisabledEditor;
 
-    private boolean mImageHasBeenInserted = false; // Variable used only in insert-mode
-    private boolean mImageHasBeenDeleted = false;
     private boolean mDataHasChanged = false;
+
+    // Variables used only in insert-mode
+    private boolean mImageHasBeenInserted = false;
+    private boolean mQuantityInStockIsEditable = false;
 
     // Uri of the item we want to edit in edit-item mode
     private Uri mCurrentItemUri;
@@ -103,6 +110,9 @@ public class EditorActivity extends AppCompatActivity
         mCodeEditText = (EditText) findViewById(R.id.item_product_code);
         mPriceEditText = (EditText) findViewById(R.id.item_price);
         mQuantityText = (TextView) findViewById(R.id.item_quantity_in_stock);
+        View quantityEditor = findViewById(R.id.editor_in_stock);
+        mEnabledEditor = findViewById(R.id.editable_view_in_stock);
+        mDisabledEditor = findViewById(R.id.uneditable_view_in_stock);
         mSupplierEditText = (EditText) findViewById(R.id.item_supplier_name);
         mSupplierEMailEditText = (EditText) findViewById(R.id.item_supplier_email);
         mImpendingOrdersText = (EditText) findViewById(R.id.number_of_items_ordered);
@@ -171,9 +181,25 @@ public class EditorActivity extends AppCompatActivity
             // (It doesn't make sense to delete an item that hasn't been created yet.)
             invalidateOptionsMenu();
 
-            mQuantityText.setText("0");
             buttonOrder.setVisibility(View.GONE); // You cannot order an item that hasn't been
             // created yet.
+
+            mEnabledEditor.setVisibility(View.GONE);
+            mDisabledEditor.setVisibility(View.VISIBLE);
+            quantityEditor.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+
+                    if (!mQuantityInStockIsEditable) {
+                        mQuantityInStockIsEditable = true;
+                        mEnabledEditor.setVisibility(View.VISIBLE);
+                        mQuantityText.setText("0");
+                        mDisabledEditor.setVisibility(View.GONE);
+                        return true;
+                    }
+                    return false;
+                }
+            });
 
         } else {
             // If we are in EDIT-ITEM mode
@@ -188,49 +214,6 @@ public class EditorActivity extends AppCompatActivity
             // Retrieve item data via cursor loader
             LoaderManager loaderManager = getSupportLoaderManager();
             loaderManager.initLoader(EDITOR_MODE_LOADER_ID, null, this);
-
-            mPicture.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    // If the user long-clicks the ImageView, he can delete the current image.
-
-                    // If the image has already been deleted during this editing session,
-                    // or if there is no image available for the item in the database,
-                    // it makes no sense to enable this feature.
-                    if (!mImageHasBeenDeleted && mPictureUri != null) {
-
-                        final AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-                        builder.setMessage(R.string.delete_image_dialog_msg);
-                        builder.setPositiveButton(R.string.confirm_image_deletion,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        // User clicked the "Delete" button, so delete the image.
-                                        mPicture.setImageResource(R.drawable.no_image_available);
-                                        mImageHasBeenDeleted = true;
-                                        mPictureUri = null;
-                                        mBitmap = null;
-                                    }
-                                });
-                        builder.setNegativeButton(R.string.cancel_image_deletion,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        // User clicked the "Cancel" button, so dismiss the dialog.
-                                        if (dialog != null) {
-                                            dialog.dismiss();
-                                        }
-                                    }
-                                });
-
-                        // Create and show the AlertDialog
-                        AlertDialog alertDialog = builder.create();
-                        alertDialog.show();
-                        return true;
-                    }
-
-                    return false;
-
-                }
-            });
 
             buttonOrder.setVisibility(View.VISIBLE);
             buttonOrder.setOnClickListener(new View.OnClickListener() {
@@ -252,10 +235,13 @@ public class EditorActivity extends AppCompatActivity
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putInt(QUANTITY, Integer.parseInt(mQuantityText.getText().toString()));
         outState.putBoolean(BOOLEAN_DATA_CHANGED, mDataHasChanged);
-        outState.putBoolean(BOOLEAN_IMAGE_DELETED, mImageHasBeenDeleted);
         outState.putBoolean(BOOLEAN_IMAGE_INSERTED, mImageHasBeenInserted);
+        outState.putBoolean(BOOLEAN_QUANTITY_IN_STOCK_EDITABLE, mQuantityInStockIsEditable);
+
+        if (mCurrentItemUri != null || mQuantityInStockIsEditable) {
+            outState.putInt(QUANTITY, Integer.parseInt(mQuantityText.getText().toString()));
+        }
 
         if (mPictureUri != null) {
             outState.putString(IMAGE_URI, mPictureUri.toString());
@@ -274,12 +260,26 @@ public class EditorActivity extends AppCompatActivity
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
-        mQuantityText.setText(String.valueOf(savedInstanceState.getInt(QUANTITY)));
         mDataHasChanged = savedInstanceState.getBoolean(BOOLEAN_DATA_CHANGED);
 
+        if (savedInstanceState.containsKey(QUANTITY)) {
+            mQuantityText.setText(String.valueOf(savedInstanceState.getInt(QUANTITY)));
+        }
+
+        mQuantityInStockIsEditable = savedInstanceState.getBoolean(BOOLEAN_QUANTITY_IN_STOCK_EDITABLE);
+        if (mCurrentItemUri == null) {
+            if (mQuantityInStockIsEditable) {
+                mEnabledEditor.setVisibility(View.VISIBLE);
+                mDisabledEditor.setVisibility(View.GONE);
+            } else {
+                mEnabledEditor.setVisibility(View.GONE);
+                mDisabledEditor.setVisibility(View.VISIBLE);
+            }
+        }
+
         mImageHasBeenInserted = savedInstanceState.getBoolean(BOOLEAN_IMAGE_INSERTED);
-        if(mCurrentItemUri == null) {
-            if(!mImageHasBeenInserted) {
+        if (mCurrentItemUri == null) {
+            if (!mImageHasBeenInserted) {
                 mPicture.setImageResource(R.drawable.add_photo);
             } else {
                 mPicture.setImageResource(R.drawable.no_image_available);
@@ -290,11 +290,6 @@ public class EditorActivity extends AppCompatActivity
             mPictureUri = Uri.parse(savedInstanceState.getString(IMAGE_URI));
         } else {
             mPictureUri = null;
-        }
-
-        mImageHasBeenDeleted = savedInstanceState.getBoolean(BOOLEAN_IMAGE_DELETED);
-        if (mImageHasBeenDeleted) {
-            mPicture.setImageResource(R.drawable.no_image_available);
         }
 
         if (savedInstanceState.containsKey(IMAGE)) {
@@ -330,7 +325,6 @@ public class EditorActivity extends AppCompatActivity
                         mPictureUri = selectedImageUri;
                         // Update item picture in the UI
                         mPicture.setImageBitmap(mBitmap);
-                        mImageHasBeenDeleted = false; // We reinitialize this boolean to false
 
                     } else {
                         mPicture.setImageResource(R.drawable.no_image_available);
@@ -403,24 +397,19 @@ public class EditorActivity extends AppCompatActivity
             mImpendingOrdersText.setText(stringImpendingOrders);
 
             mBitmap = null;
-            if (pictureUri != null) {
-                mPictureUri = Uri.parse(pictureUri);
-                try {
-                    mBitmap = getBitmapFromUri(mPictureUri);
-                    if (mBitmap != null) {
-                        mPicture.setImageBitmap(mBitmap);
 
-                    } else {
-                        mPicture.setImageResource(R.drawable.no_image_available);
-                    }
+            mPictureUri = Uri.parse(pictureUri);
+            try {
+                mBitmap = getBitmapFromUri(mPictureUri);
+                if (mBitmap != null) {
+                    mPicture.setImageBitmap(mBitmap);
 
-                } catch (IOException e) {
-                    Log.e(LOG_TAG, "Problem retrieving the image. ", e);
+                } else {
+                    mPicture.setImageResource(R.drawable.no_image_available);
                 }
 
-            } else {
-                mPicture.setImageResource(R.drawable.no_image_available);
-                mPictureUri = null;
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "Problem retrieving the image. ", e);
             }
 
         } else if (loader.getId() == INSERT_MODE_LOADER_ID) {
@@ -617,7 +606,6 @@ public class EditorActivity extends AppCompatActivity
 
         } else { // If we are in EDIT-ITEM mode
             updateItem();
-            finish();
         }
     }
 
@@ -677,6 +665,7 @@ public class EditorActivity extends AppCompatActivity
                 Toast.makeText(this, getString(R.string.update_failed),
                         Toast.LENGTH_SHORT).show();
             }
+            finish();
         }
     }
 
@@ -711,6 +700,34 @@ public class EditorActivity extends AppCompatActivity
             return null;
         }
 
+        // If price field is empty, warn user and return early
+        if (TextUtils.isEmpty(item_price)) {
+            Toast.makeText(this, "Field PRICE cannot be empty!",
+                    Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
+        // If quantity field is empty, warn user and return early
+        if (TextUtils.isEmpty(quantity)) {
+            Toast.makeText(this, "Field QUANTITY_IN_STOCK cannot be empty!",
+                    Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
+        // If impending-orders field is empty, warn user and return early
+        if (TextUtils.isEmpty(impending_orders)) {
+            Toast.makeText(this, "Field IMPENDING_ORDERS cannot be empty!",
+                    Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
+        // If no valid image has been found, warn the user and return early
+        if (mPictureUri == null) {
+            Toast.makeText(this, "Please, select an IMAGE for this product",
+                    Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
         ContentValues values = new ContentValues();
         values.put(InventoryEntry.COLUMN_NAME, item_name);
         values.put(InventoryEntry.COLUMN_CODE, item_code);
@@ -719,12 +736,7 @@ public class EditorActivity extends AppCompatActivity
         values.put(InventoryEntry.COLUMN_SUPPLIER_NAME, supplier_name);
         values.put(InventoryEntry.COLUMN_SUPPLIER_MAIL, supplier_email);
         values.put(InventoryEntry.COLUMN_IMPENDING_ORDERS, impending_orders);
-
-        if (mPictureUri != null) {
-            values.put(InventoryEntry.COLUMN_PICTURE_URI, mPictureUri.toString());
-        } else {
-            values.put(InventoryEntry.COLUMN_PICTURE_URI, (String) null);
-        }
+        values.put(InventoryEntry.COLUMN_PICTURE_URI, mPictureUri.toString());
 
         return values;
     }

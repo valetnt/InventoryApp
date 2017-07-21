@@ -117,68 +117,87 @@
                 android:layout_weight="1"
                 android:text="@string/label_quantity_in_stock" />
 
-            <!-- Input Fields -->
-            <LinearLayout
+            <!-- Input Field -->
+            <RelativeLayout
+                android:id="@+id/editor_in_stock"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="2"
-                android:orientation="horizontal">
+                android:layout_weight="2">
 
-                <!-- Button for decreasing quantity -->
-                <FrameLayout
-                    android:id="@+id/button_decrease_quantity"
-                    android:layout_width="@dimen/icon_touch_target_size"
-                    android:layout_height="@dimen/icon_touch_target_size">
-
-                    <ImageView
-                        android:layout_width="@dimen/icon_size"
-                        android:layout_height="@dimen/icon_size"
-                        android:layout_gravity="center"
-                        android:background="@color/colorAccentEditor"
-                        android:padding="@dimen/editor_smaller_margin"
-                        android:scaleType="centerInside"
-                        android:src="@drawable/ic_remove" />
-
-                </FrameLayout>
-
-                <!-- Quantity field -->
+                <!-- View for Uneditable Field -->
                 <TextView
-                    android:id="@+id/item_quantity_in_stock"
-                    style="@style/EditorFieldStyle"
+                    android:id="@+id/uneditable_view_in_stock"
+                    style="@style/SpecifyFieldLabelStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical" />
+                    android:layout_centerVertical="true"
+                    android:padding="@dimen/editor_small_margin"
+                    android:text="@string/specify_field"
+                    android:visibility="gone" />
 
-                <!-- Text field -->
-                <TextView
-                    style="@style/EditorFieldStyle"
+                <!-- View for Editable Field -->
+                <LinearLayout
+                    android:id="@+id/editable_view_in_stock"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="@dimen/editor_small_margin"
-                    android:layout_marginStart="@dimen/editor_small_margin"
-                    android:orientation="vertical"
-                    android:text="@string/label_item_units" />
+                    android:orientation="horizontal">
 
-                <!-- Button for increasing quantity -->
-                <FrameLayout
-                    android:id="@+id/button_increase_quantity"
-                    android:layout_width="@dimen/icon_touch_target_size"
-                    android:layout_height="@dimen/icon_touch_target_size">
+                    <!-- Button for decreasing quantity -->
+                    <FrameLayout
+                        android:id="@+id/button_decrease_quantity"
+                        android:layout_width="@dimen/icon_touch_target_size"
+                        android:layout_height="@dimen/icon_touch_target_size">
 
-                    <ImageView
-                        android:layout_width="@dimen/icon_size"
-                        android:layout_height="@dimen/icon_size"
-                        android:layout_gravity="center"
-                        android:background="@color/colorAccentEditor"
-                        android:padding="@dimen/editor_smaller_margin"
-                        android:scaleType="centerInside"
-                        android:src="@drawable/ic_add" />
+                        <ImageView
+                            android:layout_width="@dimen/icon_size"
+                            android:layout_height="@dimen/icon_size"
+                            android:layout_gravity="center"
+                            android:background="@color/colorAccentEditor"
+                            android:padding="@dimen/editor_smaller_margin"
+                            android:scaleType="centerInside"
+                            android:src="@drawable/ic_remove" />
 
-                </FrameLayout>
+                    </FrameLayout>
 
-            </LinearLayout>
+                    <!-- Quantity -->
+                    <TextView
+                        android:id="@+id/item_quantity_in_stock"
+                        style="@style/EditorFieldStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical" />
+
+                    <!-- Units -->
+                    <TextView
+                        style="@style/EditorFieldStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="@dimen/editor_small_margin"
+                        android:layout_marginStart="@dimen/editor_small_margin"
+                        android:text="@string/label_item_units" />
+
+                    <!-- Button for increasing quantity -->
+                    <FrameLayout
+                        android:id="@+id/button_increase_quantity"
+                        android:layout_width="@dimen/icon_touch_target_size"
+                        android:layout_height="@dimen/icon_touch_target_size">
+
+                        <ImageView
+                            android:layout_width="@dimen/icon_size"
+                            android:layout_height="@dimen/icon_size"
+                            android:layout_gravity="center"
+                            android:background="@color/colorAccentEditor"
+                            android:padding="@dimen/editor_smaller_margin"
+                            android:scaleType="centerInside"
+                            android:src="@drawable/ic_add" />
+
+                    </FrameLayout>
+
+                </LinearLayout>
+
+            </RelativeLayout>
 
         </LinearLayout>
 

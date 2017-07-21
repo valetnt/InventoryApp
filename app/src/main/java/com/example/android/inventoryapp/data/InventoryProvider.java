@@ -13,6 +13,8 @@ import android.util.Log;
 
 import com.example.android.inventoryapp.data.InventoryContract.InventoryEntry;
 
+import static com.example.android.inventoryapp.R.id.impending_orders;
+
 public class InventoryProvider extends ContentProvider {
 
     /**
@@ -150,21 +152,27 @@ public class InventoryProvider extends ContentProvider {
             throw new IllegalArgumentException("Item requires a product code");
         }
 
-        //Check that price, if specified, is positive
+        //Check that price is not null and positive
         Integer price = values.getAsInteger(InventoryEntry.COLUMN_PRICE);
-        if (price != null && price < 0) {
+        if (price == null || price < 0) {
             throw new IllegalArgumentException("Item requires valid price");
         }
 
-        // Check that quantity in stock, if specified, is positive
+        // Check that quantity in stock is not null and positive
         Integer quantity = values.getAsInteger(InventoryEntry.COLUMN_QUANTITY);
-        if (quantity != null && quantity < 0) {
+        if (quantity == null || quantity < 0) {
             throw new IllegalArgumentException("Item requires valid quantity");
         }
 
-        // Check that number of impending orders, if specified, is positive
+        // Check that product has a picture
+        String picture_uri = values.getAsString(InventoryEntry.COLUMN_PICTURE_URI);
+        if (picture_uri == null) {
+            throw new IllegalArgumentException("Item requires an image");
+        }
+
+        // Check that number of impending orders is not null and positive
         Integer impending_orders = values.getAsInteger(InventoryEntry.COLUMN_IMPENDING_ORDERS);
-        if (impending_orders != null && impending_orders < 0) {
+        if (impending_orders == null || impending_orders < 0) {
             throw new IllegalArgumentException("Number of impending orders is invalid");
         }
 
@@ -235,26 +243,34 @@ public class InventoryProvider extends ContentProvider {
             }
         }
 
-        // If price is updated, new value must be positive (if specified)
+        // If price is updated, new value must be not null and positive
         if (values.containsKey(InventoryEntry.COLUMN_PRICE)) {
             Integer price = values.getAsInteger(InventoryEntry.COLUMN_PRICE);
-            if (price != null && price < 0) {
+            if (price == null || price < 0) {
                 throw new IllegalArgumentException("Item requires valid price");
             }
         }
 
-        // If quantity in stock is updated, new value must be positive (if specified)
+        // If quantity in stock is updated, new value must be not null and positive
         if (values.containsKey(InventoryEntry.COLUMN_QUANTITY)) {
             Integer quantity = values.getAsInteger(InventoryEntry.COLUMN_QUANTITY);
-            if (quantity != null && quantity < 0) {
+            if (quantity == null || quantity < 0) {
                 throw new IllegalArgumentException("Item requires valid quantity");
             }
         }
 
-        // If number of impending orders is updated, new value must be positive (if specified)
+        // If picture is updated, new value must be not null
+        if (values.containsKey(InventoryEntry.COLUMN_PICTURE_URI)) {
+            String picture_uri = values.getAsString(InventoryEntry.COLUMN_PICTURE_URI);
+            if (picture_uri == null) {
+                throw new IllegalArgumentException("Item requires an image");
+            }
+        }
+
+        // If number of impending orders is updated, new value must be not null and positive
         if (values.containsKey(InventoryEntry.COLUMN_IMPENDING_ORDERS)) {
             Integer impending_orders = values.getAsInteger(InventoryEntry.COLUMN_IMPENDING_ORDERS);
-            if (impending_orders != null && impending_orders < 0) {
+            if (impending_orders == null || impending_orders < 0) {
                 throw new IllegalArgumentException("Number of impending orders is invalid");
             }
         }
