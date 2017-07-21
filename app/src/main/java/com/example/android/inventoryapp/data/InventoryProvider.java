@@ -259,7 +259,7 @@ public class InventoryProvider extends ContentProvider {
             }
         }
 
-        // If picture is updated, new value must be not null
+        // If picture uri is updated, new value must be not null
         if (values.containsKey(InventoryEntry.COLUMN_PICTURE_URI)) {
             String picture_uri = values.getAsString(InventoryEntry.COLUMN_PICTURE_URI);
             if (picture_uri == null) {
